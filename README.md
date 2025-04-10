@@ -43,3 +43,4 @@ It would be cool if we can create a set of examples which shows the following ph
 # How to contribute
 - Create a discussion or issue on this repo and let us know what you have in mind
 - Send a pull request
+- The current code is a proper mess at it was a first attempt to program in collaboration with LLMs. Cleaning up the code should be the first priority!
