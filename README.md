@@ -12,9 +12,9 @@ By locking the red field and making sure the blue field is in the liquid domain,
 
 # How to use
 - Select a field by clicking on it
-- Draw in the empty window by pressing and or holding down left mouse button
-- Remove pixels in the active field by starting on a filled pixel and dragging
-- Start simple and draw a single pixel and step through the simulation using the individual step button
+- Draw in the empty window by clicking and or dragging with left mouse button
+- Remove pixels in the active field by starting on a filled pixel
+- Start simple and draw a single pixel and step through the simulation using the individual step buttons
 - Make a screenshot of a cool system and its settings and share it with us and your friends
 
 # Underlying algorithm
