@@ -18,7 +18,7 @@ By locking the red field and making sure the blue field is in the liquid domain,
 - Make a screenshot of a cool system and its settings and share it with us and your friends
 
 # Underlying algorithm
-1) Each field ($F$) is a boolean grid with N non-empty values
+1) Each field ($F$) is a boolean grid with $N$ non-empty values
 3) Each field is blurred using a gaussian kernal with a cutoff in $K$ successive iterations
 4) The self interactions scale the blurred gaussian values
 5) The cross interactions ($CI$) are calculated per pixel as $Fa_i += (0.5 - Fb_i) * CI_{ab} * 2$ if $0.1 < Fb_j < 1.0$ (interface like interaction)
