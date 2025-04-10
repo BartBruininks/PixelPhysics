@@ -1,6 +1,10 @@
 # PixelPhysics
 Interactive physics based simulation of condensed phase.
 
+https://bartbruininks.github.io/PixelPhysics/
+
+(click the link to launch the simulator directly from this repo)
+
 # How to use
 - Select a field by clicking on it
 - Draw in the empty window by pressing and or holding down left mouse button
