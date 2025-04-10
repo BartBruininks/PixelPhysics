@@ -3,9 +3,9 @@ Interactive physics based simulation of condensed phase.
 
 https://bartbruininks.github.io/PixelPhysics/
 
-(click the link to launch the simulator directly from this repo)
+(click the link or the image to launch the simulator directly from this repo)
 
-![Screenshot 2025-04-10 at 11 30 40](https://github.com/user-attachments/assets/10abd92d-63a8-4f1d-9076-e662b298edf0)
+[![Project Logo](https://github.com/user-attachments/assets/10abd92d-63a8-4f1d-9076-e662b298edf0)](https://bartbruininks.github.io/PixelPhysics/)
 ### Fig 1. Adhesion of a droplet to a surface
 By locking the red field and making sure the blue field is in the liquid domain, we can create a droplet adhesion experiment. The shown wetting uses $CI_{ab} = 0.04$.
 
