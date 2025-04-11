@@ -279,7 +279,6 @@
                 return arr.map(val => val / max);
             }
 
-            
             static getBorderIndices(gridSizeX, gridSizeY) {
                 const indices = [];
 
@@ -1140,44 +1139,34 @@
                     this.blurredGrid2[i] *= this.interactionMatrix[1][1]; // Field 2 self-interaction
                     this.blurredGrid3[i] *= this.interactionMatrix[2][2]; // Field 3 self-interaction
 
-                    // Store the raw post self interaction values for calculating the interactions (making a copy)
-                    var rawSiGrid1 = this.blurredGrid1[i];
-                    var rawSiGrid2 = this.blurredGrid2[i];
-                    var rawSiGrid3 = this.blurredGrid3[i];
-
-                    // These if statements are getting a bit out of hand and maybe we should do them in a loop for all
-                    //  active ones. For now this is what it is... Also the exclusion of values higher than 1 is not 
-                    //  very transparent and it is VITAL that it happens based on the field values after assing the 
-                    //  self interaction. I feel like that is a nicer manner in which we can prevent densities from 
-                    //  overlapping. All of these calculations are performed after self interactions. 
                     if (!this.borderPixels1.has(i)) {
-                        if ((rawSiGrid2 >= 0.01) && (rawSiGrid2 < 1.0)) {
-                            this.blurredGrid1[i] += rawBlurredGrid2 * this.interactionMatrix[0][1]; /* Miscibility */
+                        if (rawBlurredGrid2 >= 0.01) {
+                            this.blurredGrid1[i] += (0.5 - rawBlurredGrid2) * this.interactionMatrix[0][1] * 2; /* Miscibility */
                             //this.blurredGrid1[i] += (0.5 - rawBlurredGrid2) * this.interactionMatrix[0][1]; /* Interface */
                         }
-                        if ((rawSiGrid3 >= 0.01) && (rawSiGrid3 < 1.0)) {
-                            this.blurredGrid1[i] += rawBlurredGrid3 * this.interactionMatrix[0][2];
+                        if (rawBlurredGrid3 >= 0.01) {
+                            this.blurredGrid1[i] += (0.5 - rawBlurredGrid3) * this.interactionMatrix[0][2] * 2;
                             //this.blurredGrid1[i] += (0.5 - rawBlurredGrid3) * this.interactionMatrix[0][2];
                         }
                     }
                     if (!this.borderPixels2.has(i)) {
-                        if ((rawSiGrid1 >= 0.01) && (rawSiGrid1 < 1.0)) {
+                        if (rawBlurredGrid1 >= 0.01) {
                             //this.blurredGrid2[i] += rawBlurredGrid1 * this.interactionMatrix[1][0];
-                            this.blurredGrid2[i] += (0.5 - rawBlurredGrid1) * this.interactionMatrix[1][0];
+                            this.blurredGrid2[i] += (0.5 - rawBlurredGrid1) * this.interactionMatrix[1][0] * 2;
                         }
-                        if ((rawSiGrid3 >= 0.01) && (rawSiGrid3 < 1.0)) {
+                        if (rawBlurredGrid3 >= 0.01) {
                             //this.blurredGrid2[i] += rawBlurredGrid3 * this.interactionMatrix[1][2];
-                            this.blurredGrid2[i] += (0.5 - rawBlurredGrid3) * this.interactionMatrix[1][2];
+                            this.blurredGrid2[i] += (0.5 - rawBlurredGrid3) * this.interactionMatrix[1][2] * 2;
                         }
                     }
                     if (!this.borderPixels3.has(i)) {
-                        if ((rawSiGrid1 >= 0.01) && (rawSiGrid1 < 1.0)) {
+                        if (rawBlurredGrid1 >= 0.01) {
                             //this.blurredGrid3[i] += rawBlurredGrid1 * this.interactionMatrix[2][0];
-                            this.blurredGrid3[i] += (0.5 - rawBlurredGrid1) * this.interactionMatrix[2][0];
+                            this.blurredGrid3[i] += (0.5 - rawBlurredGrid1) * this.interactionMatrix[2][0] * 2;
                         }
-                        if ((rawSiGrid2 >= 0.01) && (rawSiGrid2 < 1.0)) {
+                        if (rawBlurredGrid2 >= 0.01) {
                             //this.blurredGrid3[i] += rawBlurredGrid2 * this.interactionMatrix[2][1];
-                            this.blurredGrid3[i] += (0.5 - rawBlurredGrid2) * this.interactionMatrix[2][1];
+                            this.blurredGrid3[i] += (0.5 - rawBlurredGrid2) * this.interactionMatrix[2][1] * 2;
                         }
                     }
                 }
