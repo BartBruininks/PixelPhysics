@@ -577,6 +577,30 @@
                     [0.0, 0.0, 1.0]
                 ]);
             }
+
+            encodeIntoUrl() {
+                const url = new URL(window.location.href);
+
+                // Set or update query parameters.
+                url.searchParams.set('gridSizeX', this.gridSizeX);
+                url.searchParams.set('gridSizeY', this.gridSizeY);
+                url.searchParams.set('usePBC', this.usePBC);
+                url.searchParams.set('lockField1', this.lockField1);
+                url.searchParams.set('lockField2', this.lockField2);
+                url.searchParams.set('lockField3', this.lockField3);
+                url.searchParams.set('brushSize', this.brushSize);
+                url.searchParams.set('sigma', this.sigma);
+                url.searchParams.set('temperature', this.temperature);
+                url.searchParams.set('gravity', this.gravity);
+                url.searchParams.set('blurKernelSize', this.blurKernelSize);
+                url.searchParams.set('blurIterations', this.blurIterations);
+                // NOTE: The ',' will be replaced with '%2C' in the URL, since a comma is not a valid part of a URL.
+                const matrixString = this.interactionMatrix.flat().join(',');
+                url.searchParams.set('interactionMatrix', matrixString);
+
+                // Update the browser's address bar.
+                window.history.replaceState(null, '', url.toString());
+            }
         }
 
         class PixelSimulation {
@@ -752,6 +776,9 @@
                     this.borderIndices = Helper.getBorderIndices(this.controls.gridSizeX, this.controls.gridSizeY);
                     this.updateBorderPixels();
 
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
+
                     // Clear the canvas and render
                     this.render();
                 });
@@ -792,6 +819,9 @@
                     } else {
                         this.updateBorderPixels();
                     }
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
             }
 
@@ -832,13 +862,22 @@
                 document.getElementById('kernelSize').addEventListener('change', (e) => {
                     this.controls.blurKernelSize = parseInt(e.target.value);
                     this.gaussianKernel1D = Helper.createGaussianKernel1D(this.controls.sigma, this.controls.blurKernelSize);
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
 
                 const iterationsSlider = document.getElementById('iterationsSetting');
+                iterationsSlider.value = this.controls.blurIterations;
                 const iterationsDisplay = document.getElementById('iterationsDisplay');
+                iterationsDisplay.textContent = this.controls.blurIterations;
+
                 iterationsSlider.addEventListener('input', (e) => {
                     this.controls.blurIterations = parseInt(e.target.value);
                     iterationsDisplay.textContent = this.controls.blurIterations;
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
             }
 
@@ -908,6 +947,9 @@
                 brushSizeSlider.addEventListener('input', (e) => {
                     this.controls.brushSize = parseInt(e.target.value);
                     brushSizeDisplay.textContent = this.controls.brushSize;
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
             }
 
@@ -953,6 +995,9 @@
                         const row = Math.floor(index / 3);
                         const col = index % 3;
                         this.controls.interactionMatrix[row][col] = parseFloat(e.target.value);
+
+                        // Update the URL.
+                        this.controls.encodeIntoUrl();
                     });
                 });
 
@@ -961,18 +1006,27 @@
                     this.controls.sigma = parseFloat(e.target.value);
                     sigmaDisplay.textContent = this.controls.sigma.toFixed(1);
                     this.gaussianKernel1D = Helper.createGaussianKernel1D(this.controls.sigma, this.controls.blurKernelSize);
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
 
                 // Temperature slider
                 temperatureSlider.addEventListener('input', (e) => {
                     this.controls.temperature = parseFloat(e.target.value);
                     temperatureDisplay.textContent = this.controls.temperature.toFixed(2);
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
 
                 // Gravity slider
                 gravitySlider.addEventListener('input', (e) => {
                     this.controls.gravity = parseFloat(e.target.value);
                     gravityDisplay.textContent = this.controls.gravity.toFixed(2);
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
 
                 // Simulation steps input
