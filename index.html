@@ -54,11 +54,6 @@
             flex: 0 0 auto;
         }
         
-        .simulation-controls {
-            width: 100%;
-            max-width: 400px; /* Match canvas width */
-        }
-        
         .controls-container {
             flex: 1;
             display: flex;
@@ -197,7 +192,10 @@
             <div class="canvas-container">
                 <canvas id="particleCanvas" width="900" height="900"></canvas>
             </div>
-            <div class="simulation-controls control-group">
+        </div>
+
+        <div class="controls-container">
+            <div class="control-group">
                 <h3>Continuous Simulation</h3>
                 <div class="control-row">
                     <label>Steps:</label>
@@ -209,9 +207,7 @@
                     <button id="stopSimulationButton" disabled>Stop Simulation</button>
                 </div>
             </div>
-        </div>
-
-        <div class="controls-container">
+            
             <div class="control-group">
                 <h3>Field Selection</h3>
                 <div class="field-selector">
