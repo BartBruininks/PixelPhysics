@@ -16,6 +16,7 @@ By locking the red field and making sure the blue field is in the liquid domain,
 - Remove pixels in the active field by starting on a filled pixel
 - Start simple and draw a single pixel and step through the simulation using the individual step buttons
 - Make a screenshot of a cool system and its settings and share it with us and your friends
+- Sharing settings should be a breeze as you can simply share the `url`, the field positions are not saved in the url
 
 # Underlying algorithm
 1) Each field ($F_i$) is a boolean grid with $N_i$ non-empty values
