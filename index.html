@@ -527,39 +527,55 @@
             constructor(urlQuery = null) {
                 let params = new URLSearchParams(urlQuery);
 
-                function parseBool(param) {
-                    return param?.toLowerCase() === 'true';
+                function getIntParam(key, fallback) {
+                    const val = parseInt(params.get(key));
+                    return isNaN(val) ? fallback : val;
                 }
 
-                function parseMatrix3x3(param) {
+                function getFloatParam(key, fallback) {
+                    const val = parseFloat(params.get(key));
+                    return isNaN(val) ? fallback : val;
+                }
+
+                function getBoolParam(key, fallback) {
+                    const val = params.get(key);
+                    return val === null ? fallback : val.toLowerCase() === 'true';
+                }
+
+                function getMatrixParam(key, fallback) {
+                    const param = params.get(key);
+                    if (!param) return fallback;
                     const values = param.split(',');
-                    if (values.length < 9) {
-                        return null;
-                    }
+                    if (values.length < 9) return fallback;
                     return [
-                        [values[0], values[1], values[2]],
-                        [values[3], values[4], values[5]],
-                        [values[6], values[7], values[8]]
-                    ]
+                        [parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])],
+                        [parseFloat(values[3]), parseFloat(values[4]), parseFloat(values[5])],
+                        [parseFloat(values[6]), parseFloat(values[7]), parseFloat(values[8])]
+                    ];
                 }
 
-                this.gridSizeX = parseInt(params.get('gridSizeX')) ?? 150;
-                this.gridSizeY = parseInt(params.get('gridSizeY')) ?? 150;
-                this.usePBC = parseBool(params.get('usePBC')) ?? false;
-                this.lockField1 = parseBool(params.get('lockField1')) ?? false; // Lock for blue field
-                this.lockField2 = parseBool(params.get('lockField2')) ?? false; // Lock for red field
-                this.lockField3 = parseBool(params.get('lockField3')) ?? false; // Lock for green field
-                this.brushSize = parseInt(params.get('brushSize')) ?? 10;
-                this.sigma = parseFloat(params.get('sigma')) ?? 1.5;
-                this.temperature = parseFloat(params.get('temperature')) ?? 0.5;
-                this.gravity = parseFloat(params.get('gravity')) ?? 0.0;
-                this.blurKernelSize = parseInt(params.get('blurKernelSize')) ?? 11;
-                this.blurIterations = parseInt(params.get('blurIterations')) ?? 1;
-                this.interactionMatrix = parseMatrix3x3(params.get('interactionMatrix')) ?? [
+                this.gridSizeX = getIntParam('gridSizeX', 150);
+                this.gridSizeY = getIntParam('gridSizeY', 150);
+                this.usePBC = getBoolParam('usePBC', false);
+
+                this.lockField1 = getBoolParam('lockField1', false);
+                this.lockField2 = getBoolParam('lockField2', false);
+                this.lockField3 = getBoolParam('lockField3', false);
+
+                this.brushSize = getIntParam('brushSize', 10);
+
+                this.sigma = getFloatParam('sigma', 1.5);
+                this.temperature = getFloatParam('temperature', 0.5);
+                this.gravity = getFloatParam('gravity', 0.0);
+
+                this.blurKernelSize = getIntParam('blurKernelSize', 11);
+                this.blurIterations = getIntParam('blurIterations', 1);
+
+                this.interactionMatrix = getMatrixParam('interactionMatrix', [
                     [1.0, 0.0, 0.0],
                     [0.0, 1.0, 0.0],
                     [0.0, 0.0, 1.0]
-                ];
+                ]);
             }
         }
 
