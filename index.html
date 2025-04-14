@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 // Global pixel field automaton v0.1.4
-// 
+//
 // CHANGES:
 // * Normalization of random noise for step by step visualization
 // * Attempt at improving UI (placed continous simulation controls under field)
@@ -26,16 +26,16 @@
     <meta charset="UTF-8">
     <title>Three-Field Pixel Particle Simulation</title>
     <style>
-        body { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             font-family: Arial, sans-serif;
             margin: 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
-        
+
         .main-container {
             display: flex;
             gap: 20px;
@@ -43,22 +43,22 @@
             width: 100%;
             padding: 20px;
         }
-        
+
         .left-section {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
-        
+
         .canvas-container {
             flex: 0 0 auto;
         }
-        
+
         .simulation-controls {
             width: 100%;
             max-width: 400px; /* Match canvas width */
         }
-        
+
         .controls-container {
             flex: 1;
             display: flex;
@@ -66,45 +66,45 @@
             gap: 15px;
             max-width: 500px;
         }
-        
-        canvas { 
+
+        canvas {
             border: 1px solid black;
         }
-        
+
         .control-group {
             background: #f5f5f5;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
+
         .control-row {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 8px;
         }
-        
+
         .control-row label {
             min-width: 120px;
             font-size: 0.9rem;
         }
-        
+
         .control-row input[type="range"] {
             flex: 1;
         }
-        
+
         .control-row span {
             min-width: 40px;
             text-align: right;
         }
-        
+
         .button-group {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 8px;
         }
-        
+
         button {
             padding: 8px 12px;
             border: none;
@@ -115,23 +115,23 @@
             font-size: 0.9rem;
             transition: background 0.2s;
         }
-        
+
         button:hover {
             background: #0056b3;
         }
-        
+
         button:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
-        
+
         input[type="number"] {
             width: 80px;
             padding: 4px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        
+
         .step-count {
             font-size: 0.9rem;
             color: #666;
@@ -220,8 +220,8 @@
                 <h3>Drawing Controls</h3>
                 <div class="control-row">
                     <label>Brush Size:</label>
-                    <input type="range" id="brushSize" min="1" max="50" value="10">
-                    <span id="brushSizeDisplay">10</span>
+                    <input type="range" id="brushSize" min="1" max="50">
+                    <span id="brushSizeDisplay"></span>
                 </div>
             </div>
 
@@ -229,33 +229,33 @@
                 <h3>Simulation Parameters</h3>
                 <div class="control-row">
                     <label>Sigma:</label>
-                    <input type="range" id="sigmaSetting" min="0.1" max="10" step="0.1" value="1.5">
-                    <span id="sigmaDisplay">1.5</span>
+                    <input type="range" id="sigmaSetting" min="0.1" max="10" step="0.1">
+                    <span id="sigmaDisplay"></span>
                 </div>
                 <div class="control-row">
                     <label>Temperature:</label>
-                    <input type="range" id="temperatureSetting" min="0" max="5" step="0.02" value="0.50">
-                    <span id="temperatureDisplay">0.5</span>
+                    <input type="range" id="temperatureSetting" min="0" max="5" step="0.02">
+                    <span id="temperatureDisplay"></span>
                 </div>
                 <div class="control-row">
                     <label>Gravity:</label>
-                    <input type="range" id="gravitySetting" min="0" max="0.5" step="0.01" value="0">
-                    <span id="gravityDisplay">0.00</span>
+                    <input type="range" id="gravitySetting" min="0" max="0.5" step="0.01">
+                    <span id="gravityDisplay"></span>
                 </div>
             </div>
 
             <div class="control-group">
                 <h3>Interaction Matrix</h3>
                 <div class="interaction-matrix">
-                    <input type="number" id="interaction11" min="-5" max="5" step="0.1" value="1.0">
-                    <input type="number" id="interaction12" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction13" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction21" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction22" min="-5" max="5" step="0.1" value="1.0">
-                    <input type="number" id="interaction23" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction31" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction32" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction33" min="-5" max="5" step="0.1" value="1.0">
+                    <input type="number" id="interaction11" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction12" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction13" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction21" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction22" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction23" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction31" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction32" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction33" min="-5" max="5" step="0.1">
                 </div>
             </div>
 
@@ -523,46 +523,84 @@
             }
         }
 
-        class PixelSimulation {
-            constructor(canvasId, initialGridSizeX = 150, initialGridSizeY = 150) {
-                this.canvas = document.getElementById(canvasId);
-                this.ctx = this.canvas.getContext('2d');
-                this.gridSizeX = initialGridSizeX;
-                this.gridSizeY = initialGridSizeY;
-                this.updateCanvasSize();
+        class SimulationControls {
+            constructor(urlQuery = null) {
+                let params = new URLSearchParams(urlQuery);
 
-                // Initialize grids with correct dimensions
-                this.initializeGrids();
-                this.usePBC = false;
-                this.borderIndices = Helper.getBorderIndices(this.gridSizeX, this.gridSizeY);
+                function parseBool(param) {
+                    return param?.toLowerCase() === 'true';
+                }
 
-                // Rest of the constructor remains the same
-                this.interactionMatrix = [
+                function parseMatrix3x3(param) {
+                    const values = param.split(',');
+                    if (values.length < 9) {
+                        return null;
+                    }
+                    return [
+                        [values[0], values[1], values[2]],
+                        [values[3], values[4], values[5]],
+                        [values[6], values[7], values[8]]
+                    ]
+                }
+
+                // ?gridSizeX=42&gridSizeY=42&usePBC=TRUE&lockField1=true&lockField2=true&lockField3=true&brushSize=42&sigma=42&temperature=42&gravity=42&blurKernelSize=15&blurIterations=42&interactionMatrix=0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9
+
+                this.gridSizeX = parseInt(params.get('gridSizeX')) ?? 150;
+                this.gridSizeY = parseInt(params.get('gridSizeY')) ?? 150;
+                this.lockField1 = parseBool(params.get('lockField1')) ?? false;
+                this.lockField2 = parseBool(params.get('lockField2')) ?? false;
+                this.lockField3 = parseBool(params.get('lockField3')) ?? false;
+                this.brushSize = parseInt(params.get('brushSize')) ?? 10;
+                this.sigma = parseFloat(params.get('sigma')) ?? 1.5;
+                this.temperature = parseFloat(params.get('temperature')) ?? 0.5;
+                this.gravity = parseFloat(params.get('gravity')) ?? 0.0;
+                this.blurKernelSize = parseInt(params.get('blurKernelSize')) ?? 11;
+                this.blurIterations = parseInt(params.get('blurIterations')) ?? 1;
+                this.usePBC = parseBool(params.get('usePBC')) ?? false;
+                this.interactionMatrix = parseMatrix3x3(params.get('interactionMatrix')) ?? [
                     [1.0, 0.0, 0.0],
                     [0.0, 1.0, 0.0],
                     [0.0, 0.0, 1.0]
                 ];
-                this.gravity = 0.0;
+            }
+        }
+
+        class PixelSimulation {
+            constructor(canvasId, simControls) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.gridSizeX = simControls.gridSizeX;
+                this.gridSizeY = simControls.gridSizeY;
+                this.updateCanvasSize();
+
+                // Initialize grids with correct dimensions
+                this.initializeGrids();
+                this.usePBC = simControls.usePBC;
+                this.borderIndices = Helper.getBorderIndices(this.gridSizeX, this.gridSizeY);
+
+                // Rest of the constructor remains the same
+                this.interactionMatrix = simControls.interactionMatrix;
+                this.gravity = simControls.gravity;
                 this.npixels1 = 0.0;
                 this.npixels2 = 0.0;
                 this.npixels3 = 0.0;
-                this.temperature = 0.5;
+                this.temperature = simControls.temperature;
 
                 this.borderPixels1 = new Set();
                 this.borderPixels2 = new Set();
                 this.borderPixels3 = new Set();
 
-                this.brushSize = 10;
+                this.brushSize = simControls.brushSize;
                 this.isDrawing = false;
                 this.drawMode = null;
                 this.activeField = 1;
-                this.lockField1 = false; // Lock for blue field
-                this.lockField2 = false; // Lock for red field
-                this.lockField3 = false; // Lock for green field
+                this.lockField1 = simControls.lockField1; // Lock for blue field
+                this.lockField2 = simControls.lockField2; // Lock for red field
+                this.lockField3 = simControls.lockField3; // Lock for green field
 
-                this.sigma = 1.5;
-                this.kernelSize = 11;
-                this.iterations = 1;
+                this.sigma = simControls.sigma;
+                this.kernelSize = simControls.blurKernelSize;
+                this.iterations = simControls.blurIterations;
                 this.gaussianKernel1D = Helper.createGaussianKernel1D(this.sigma, this.kernelSize);
 
                 this.simulationTimer = null;
@@ -624,15 +662,15 @@
                     <h3>Field Locking</h3>
                     <div class="control-row">
                         <label>Lock Field 1 (Blue):</label>
-                        <input type="checkbox" id="lockField1Toggle">
+                        <input type="checkbox" id="lockField1Toggle" ${this.lockField1 ? 'checked' : ''}>
                     </div>
                     <div class="control-row">
                         <label>Lock Field 2 (Red):</label>
-                        <input type="checkbox" id="lockField2Toggle">
+                        <input type="checkbox" id="lockField2Toggle" ${this.lockField2 ? 'checked' : ''}>
                     </div>
                     <div class="control-row">
                         <label>Lock Field 3 (Green):</label>
-                        <input type="checkbox" id="lockField3Toggle">
+                        <input type="checkbox" id="lockField3Toggle" ${this.lockField3 ? 'checked' : ''}>
                     </div>
                 `;
 
@@ -723,7 +761,7 @@
                 <h3>Boundary Conditions</h3>
                 <div class="control-row">
                     <label>Periodic Boundary:</label>
-                    <input type="checkbox" id="pbcToggle">
+                    <input type="checkbox" id="pbcToggle" ${this.usePBC ? 'checked' : ''}>
                 </div>
             `;
 
@@ -762,21 +800,21 @@
                 <div class="control-row">
                     <label>Kernel Size:</label>
                     <select id="kernelSize">
-                        <option value="3">3x3</option>
-                        <option value="5">5x5</option>
-                        <option value="7">7x7</option>
-                        <option value="9">9x9</option>
-                        <option value="11" selected>11x11</option>
-                        <option value="13">13x13</option>
-                        <option value="15">15x15</option>
-                        <option value="17">17x17</option>
-                        <option value="19">19x19</option>
+                        <option value="3"  ${this.kernelSize == 3  ? 'selected' : ''}>3x3</option>
+                        <option value="5"  ${this.kernelSize == 5  ? 'selected' : ''}>5x5</option>
+                        <option value="7"  ${this.kernelSize == 7  ? 'selected' : ''}>7x7</option>
+                        <option value="9"  ${this.kernelSize == 9  ? 'selected' : ''}>9x9</option>
+                        <option value="11" ${this.kernelSize == 11 ? 'selected' : ''}>11x11</option>
+                        <option value="13" ${this.kernelSize == 13 ? 'selected' : ''}>13x13</option>
+                        <option value="15" ${this.kernelSize == 15 ? 'selected' : ''}>15x15</option>
+                        <option value="17" ${this.kernelSize == 17 ? 'selected' : ''}>17x17</option>
+                        <option value="19" ${this.kernelSize == 19 ? 'selected' : ''}>19x19</option>
                     </select>
                 </div>
                 <div class="control-row">
                     <label>Iterations:</label>
-                    <input type="range" id="iterationsSetting" min="1" max="10" value="1">
-                    <span id="iterationsDisplay">1</span>
+                    <input type="range" id="iterationsSetting" min="1" max="10" value=${this.iterations}>
+                    <span id="iterationsDisplay">${this.iterations}</span>
                 </div>
             `;
 
@@ -822,7 +860,6 @@
                     field1Button.classList.remove('selected');
                     field2Button.classList.remove('selected');
                     field3Button.classList.add('selected');
-
                 });
             }
 
@@ -858,7 +895,9 @@
 
             setupBrushSizeControl() {
                 const brushSizeSlider = document.getElementById('brushSize');
+                brushSizeSlider.value = this.brushSize;
                 const brushSizeDisplay = document.getElementById('brushSizeDisplay');
+                brushSizeDisplay.textContent = this.brushSize;
 
                 brushSizeSlider.addEventListener('input', (e) => {
                     this.brushSize = parseInt(e.target.value);
@@ -868,15 +907,25 @@
 
             setupSimulationControls() {
                 const sigmaSlider = document.getElementById('sigmaSetting');
+                sigmaSlider.value = this.sigma;
                 const sigmaDisplay = document.getElementById('sigmaDisplay');
+                sigmaDisplay.textContent = this.sigma;
+
+                const temperatureSlider = document.getElementById('temperatureSetting');
+                temperatureSlider.value = this.temperature;
+                const temperatureDisplay = document.getElementById('temperatureDisplay');
+                temperatureDisplay.textContent = this.temperature
+
+                const gravitySlider = document.getElementById('gravitySetting');
+                gravitySlider.value = this.gravity;
+                const gravityDisplay = document.getElementById('gravityDisplay');
+                gravityDisplay.textContent = this.gravity;
+
+
                 const simulationStepsInput = document.getElementById('simulationSteps');
                 const startSimulationButton = document.getElementById('startSimulationButton');
                 const stopSimulationButton = document.getElementById('stopSimulationButton');
                 const currentStepDisplay = document.getElementById('currentStepDisplay');
-                const temperatureSlider = document.getElementById('temperatureSetting');
-                const temperatureDisplay = document.getElementById('temperatureDisplay');
-                const gravitySlider = document.getElementById('gravitySetting');
-                const gravityDisplay = document.getElementById('gravityDisplay');
 
                 // Interaction matrix inputs
                 const interactionIds = ['interaction11', 'interaction12', 'interaction13',
@@ -1112,17 +1161,17 @@
                 // Apply independent blur to each field
                 if (this.npixels1 > 0) {
                     Helper.applySeparableBlur(
-                        this.grid1, this.blurredGrid1, this.borderPixels1, 
+                        this.grid1, this.blurredGrid1, this.borderPixels1,
                         this.tempGrid, this.iterations, this.gridSizeX, this.gridSizeY, this.kernelSize, this.usePBC, this.gaussianKernel1D, this.gravity);
                 }
                 if (this.npixels2 > 0) {
                     Helper.applySeparableBlur(
-                        this.grid2, this.blurredGrid2, this.borderPixels2, 
+                        this.grid2, this.blurredGrid2, this.borderPixels2,
                         this.tempGrid, this.iterations, this.gridSizeX, this.gridSizeY, this.kernelSize, this.usePBC, this.gaussianKernel1D, this.gravity);
                 }
                 if (this.npixels3 > 0) {
                     Helper.applySeparableBlur(
-                        this.grid3, this.blurredGrid3, this.borderPixels3, 
+                        this.grid3, this.blurredGrid3, this.borderPixels3,
                         this.tempGrid, this.iterations, this.gridSizeX, this.gridSizeY, this.kernelSize, this.usePBC, this.gaussianKernel1D, this.gravity);
                 }
             }
@@ -1316,8 +1365,12 @@
             }
         }
 
+        // Get the control values from the url (if any).
+        const searchQuery = window.location.search;
+        const simControls = new SimulationControls(searchQuery);
+
         // Initialize the simulation
-        const pixelSim = new PixelSimulation('particleCanvas', 150, 150);
+        const pixelSim = new PixelSimulation('particleCanvas', simControls);
     </script>
 </body>
 </html>
