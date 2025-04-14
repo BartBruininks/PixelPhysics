@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 // Global pixel field automaton v0.1.4
-// 
+//
 // CHANGES:
 // * Normalization of random noise for step by step visualization
 // * Attempt at improving UI (placed continous simulation controls under field)
@@ -26,16 +26,16 @@
     <meta charset="UTF-8">
     <title>Three-Field Pixel Particle Simulation</title>
     <style>
-        body { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             font-family: Arial, sans-serif;
             margin: 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
-        
+
         .main-container {
             display: flex;
             gap: 20px;
@@ -43,17 +43,17 @@
             width: 100%;
             padding: 20px;
         }
-        
+
         .left-section {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
-        
+
         .canvas-container {
             flex: 0 0 auto;
         }
-        
+
         .controls-container {
             flex: 1;
             display: flex;
@@ -66,45 +66,45 @@
             overflow-y: auto; 
             padding-right: 10px; 
         }
-        
-        canvas { 
+
+        canvas {
             border: 1px solid black;
         }
-        
+
         .control-group {
             background: #f5f5f5;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
+
         .control-row {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 8px;
         }
-        
+
         .control-row label {
             min-width: 120px;
             font-size: 0.9rem;
         }
-        
+
         .control-row input[type="range"] {
             flex: 1;
         }
-        
+
         .control-row span {
             min-width: 40px;
             text-align: right;
         }
-        
+
         .button-group {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 8px;
         }
-        
+
         button {
             padding: 8px 12px;
             border: none;
@@ -115,23 +115,23 @@
             font-size: 0.9rem;
             transition: background 0.2s;
         }
-        
+
         button:hover {
             background: #0056b3;
         }
-        
+
         button:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
-        
+
         input[type="number"] {
             width: 80px;
             padding: 4px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        
+
         .step-count {
             font-size: 0.9rem;
             color: #666;
@@ -221,8 +221,8 @@
                 <h3>Drawing Controls</h3>
                 <div class="control-row">
                     <label>Brush Size:</label>
-                    <input type="range" id="brushSize" min="1" max="50" value="10">
-                    <span id="brushSizeDisplay">10</span>
+                    <input type="range" id="brushSize" min="1" max="50">
+                    <span id="brushSizeDisplay"></span>
                 </div>
             </div>
 
@@ -230,33 +230,33 @@
                 <h3>Simulation Parameters</h3>
                 <div class="control-row">
                     <label>Sigma:</label>
-                    <input type="range" id="sigmaSetting" min="0.1" max="10" step="0.1" value="1.5">
-                    <span id="sigmaDisplay">1.5</span>
+                    <input type="range" id="sigmaSetting" min="0.1" max="10" step="0.1">
+                    <span id="sigmaDisplay"></span>
                 </div>
                 <div class="control-row">
                     <label>Temperature:</label>
-                    <input type="range" id="temperatureSetting" min="0" max="5" step="0.02" value="0.50">
-                    <span id="temperatureDisplay">0.5</span>
+                    <input type="range" id="temperatureSetting" min="0" max="5" step="0.02">
+                    <span id="temperatureDisplay"></span>
                 </div>
                 <div class="control-row">
                     <label>Gravity:</label>
-                    <input type="range" id="gravitySetting" min="0" max="0.5" step="0.01" value="0">
-                    <span id="gravityDisplay">0.00</span>
+                    <input type="range" id="gravitySetting" min="0" max="0.5" step="0.01">
+                    <span id="gravityDisplay"></span>
                 </div>
             </div>
 
             <div class="control-group">
                 <h3>Interaction Matrix</h3>
                 <div class="interaction-matrix">
-                    <input type="number" id="interaction11" min="-5" max="5" step="0.1" value="1.0">
-                    <input type="number" id="interaction12" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction13" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction21" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction22" min="-5" max="5" step="0.1" value="1.0">
-                    <input type="number" id="interaction23" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction31" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction32" min="-5" max="5" step="0.1" value="0.0">
-                    <input type="number" id="interaction33" min="-5" max="5" step="0.1" value="1.0">
+                    <input type="number" id="interaction11" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction12" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction13" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction21" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction22" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction23" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction31" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction32" min="-5" max="5" step="0.1">
+                    <input type="number" id="interaction33" min="-5" max="5" step="0.1">
                 </div>
             </div>
 
@@ -524,47 +524,112 @@
             }
         }
 
+        class SimulationControls {
+            constructor(urlQuery = null) {
+                let params = new URLSearchParams(urlQuery);
+
+                function getIntParam(key, fallback) {
+                    const val = parseInt(params.get(key));
+                    return isNaN(val) ? fallback : val;
+                }
+
+                function getFloatParam(key, fallback) {
+                    const val = parseFloat(params.get(key));
+                    return isNaN(val) ? fallback : val;
+                }
+
+                function getBoolParam(key, fallback) {
+                    const val = params.get(key);
+                    return val === null ? fallback : val.toLowerCase() === 'true';
+                }
+
+                function getMatrixParam(key, fallback) {
+                    const param = params.get(key);
+                    if (!param) return fallback;
+                    const values = param.split(',');
+                    if (values.length < 9) return fallback;
+                    return [
+                        [parseFloat(values[0]), parseFloat(values[1]), parseFloat(values[2])],
+                        [parseFloat(values[3]), parseFloat(values[4]), parseFloat(values[5])],
+                        [parseFloat(values[6]), parseFloat(values[7]), parseFloat(values[8])]
+                    ];
+                }
+
+                this.gridSizeX = getIntParam('gridSizeX', 150);
+                this.gridSizeY = getIntParam('gridSizeY', 150);
+                this.usePBC = getBoolParam('usePBC', false);
+
+                this.lockField1 = getBoolParam('lockField1', false);
+                this.lockField2 = getBoolParam('lockField2', false);
+                this.lockField3 = getBoolParam('lockField3', false);
+
+                this.brushSize = getIntParam('brushSize', 10);
+
+                this.sigma = getFloatParam('sigma', 1.5);
+                this.temperature = getFloatParam('temperature', 0.5);
+                this.gravity = getFloatParam('gravity', 0.0);
+
+                this.blurKernelSize = getIntParam('blurKernelSize', 11);
+                this.blurIterations = getIntParam('blurIterations', 1);
+
+                this.interactionMatrix = getMatrixParam('interactionMatrix', [
+                    [1.0, 0.0, 0.0],
+                    [0.0, 1.0, 0.0],
+                    [0.0, 0.0, 1.0]
+                ]);
+            }
+
+            encodeIntoUrl() {
+                const url = new URL(window.location.href);
+
+                // Set or update query parameters.
+                url.searchParams.set('gridSizeX', this.gridSizeX);
+                url.searchParams.set('gridSizeY', this.gridSizeY);
+                url.searchParams.set('usePBC', this.usePBC);
+                url.searchParams.set('lockField1', this.lockField1);
+                url.searchParams.set('lockField2', this.lockField2);
+                url.searchParams.set('lockField3', this.lockField3);
+                url.searchParams.set('brushSize', this.brushSize);
+                url.searchParams.set('sigma', this.sigma);
+                url.searchParams.set('temperature', this.temperature);
+                url.searchParams.set('gravity', this.gravity);
+                url.searchParams.set('blurKernelSize', this.blurKernelSize);
+                url.searchParams.set('blurIterations', this.blurIterations);
+                // NOTE: The ',' will be replaced with '%2C' in the URL, since a comma is not a valid part of a URL.
+                const matrixString = this.interactionMatrix.flat().join(',');
+                url.searchParams.set('interactionMatrix', matrixString);
+
+                // Update the browser's address bar.
+                window.history.replaceState(null, '', url.toString());
+            }
+        }
+
         class PixelSimulation {
-            constructor(canvasId, initialGridSizeX = 150, initialGridSizeY = 150) {
+            constructor(canvasId, controls) {
+                this.controls = controls;
+
                 this.canvas = document.getElementById(canvasId);
                 this.ctx = this.canvas.getContext('2d');
-                this.gridSizeX = initialGridSizeX;
-                this.gridSizeY = initialGridSizeY;
                 this.updateCanvasSize();
 
                 // Initialize grids with correct dimensions
                 this.initializeGrids();
-                this.usePBC = false;
-                this.borderIndices = Helper.getBorderIndices(this.gridSizeX, this.gridSizeY);
+                this.borderIndices = Helper.getBorderIndices(this.controls.gridSizeX, this.controls.gridSizeY);
 
                 // Rest of the constructor remains the same
-                this.interactionMatrix = [
-                    [1.0, 0.0, 0.0],
-                    [0.0, 1.0, 0.0],
-                    [0.0, 0.0, 1.0]
-                ];
-                this.gravity = 0.0;
                 this.npixels1 = 0.0;
                 this.npixels2 = 0.0;
                 this.npixels3 = 0.0;
-                this.temperature = 0.5;
 
                 this.borderPixels1 = new Set();
                 this.borderPixels2 = new Set();
                 this.borderPixels3 = new Set();
 
-                this.brushSize = 10;
                 this.isDrawing = false;
                 this.drawMode = null;
                 this.activeField = 1;
-                this.lockField1 = false; // Lock for blue field
-                this.lockField2 = false; // Lock for red field
-                this.lockField3 = false; // Lock for green field
 
-                this.sigma = 1.5;
-                this.kernelSize = 11;
-                this.iterations = 1;
-                this.gaussianKernel1D = Helper.createGaussianKernel1D(this.sigma, this.kernelSize);
+                this.gaussianKernel1D = Helper.createGaussianKernel1D(this.controls.sigma, this.controls.blurKernelSize);
 
                 this.simulationTimer = null;
                 this.currentStep = 0;
@@ -578,7 +643,7 @@
             }
 
             initializeGrids() {
-                const size = this.gridSizeX * this.gridSizeY;
+                const size = this.controls.gridSizeX * this.controls.gridSizeY;
                 this.grid1 = new Float32Array(size);
                 this.grid2 = new Float32Array(size);
                 this.grid3 = new Float32Array(size);
@@ -613,7 +678,7 @@
                     input.addEventListener('input', (e) => {
                         const row = Math.floor(index / 3);
                         const col = index % 3;
-                        this.interactionMatrix[row][col] = parseFloat(e.target.value);
+                        this.controls.interactionMatrix[row][col] = parseFloat(e.target.value);
                     });
                 });
             }
@@ -625,15 +690,15 @@
                     <h3>Field Locking</h3>
                     <div class="control-row">
                         <label>Lock Field 1 (Blue):</label>
-                        <input type="checkbox" id="lockField1Toggle">
+                        <input type="checkbox" id="lockField1Toggle" ${this.controls.lockField1 ? 'checked' : ''}>
                     </div>
                     <div class="control-row">
                         <label>Lock Field 2 (Red):</label>
-                        <input type="checkbox" id="lockField2Toggle">
+                        <input type="checkbox" id="lockField2Toggle" ${this.controls.lockField2 ? 'checked' : ''}>
                     </div>
                     <div class="control-row">
                         <label>Lock Field 3 (Green):</label>
-                        <input type="checkbox" id="lockField3Toggle">
+                        <input type="checkbox" id="lockField3Toggle" ${this.controls.lockField3 ? 'checked' : ''}>
                     </div>
                 `;
 
@@ -643,17 +708,17 @@
 
                 // Add event listeners
                 document.getElementById('lockField1Toggle').addEventListener('change', (e) => {
-                    this.lockField1 = e.target.checked;
+                    this.controls.lockField1 = e.target.checked;
                     this.updateBorderPixels(); // Update border pixels when lock status changes
                 });
 
                 document.getElementById('lockField2Toggle').addEventListener('change', (e) => {
-                    this.lockField2 = e.target.checked;
+                    this.controls.lockField2 = e.target.checked;
                     this.updateBorderPixels(); // Update border pixels when lock status changes
                 });
 
                 document.getElementById('lockField3Toggle').addEventListener('change', (e) => {
-                    this.lockField3 = e.target.checked;
+                    this.controls.lockField3 = e.target.checked;
                     this.updateBorderPixels(); // Update border pixels when lock status changes
                 });
             }
@@ -666,13 +731,13 @@
                 <h3>Grid Size Controls</h3>
                 <div class="control-row">
                     <label>X Size:</label>
-                    <input type="range" id="gridSizeX" min="50" max="300" value="${this.gridSizeX}">
-                    <span id="gridSizeXDisplay">${this.gridSizeX}</span>
+                    <input type="range" id="gridSizeX" min="50" max="300" value="${this.controls.gridSizeX}">
+                    <span id="gridSizeXDisplay">${this.controls.gridSizeX}</span>
                 </div>
                 <div class="control-row">
                     <label>Y Size:</label>
-                    <input type="range" id="gridSizeY" min="50" max="300" value="${this.gridSizeY}">
-                    <span id="gridSizeYDisplay">${this.gridSizeY}</span>
+                    <input type="range" id="gridSizeY" min="50" max="300" value="${this.controls.gridSizeY}">
+                    <span id="gridSizeYDisplay">${this.controls.gridSizeY}</span>
                 </div>
                 <div class="control-row">
                     <button id="applyGridSize">Apply Size Changes</button>
@@ -703,14 +768,17 @@
                     const newSizeY = parseInt(ySlider.value);
 
                     // Update grid sizes
-                    this.gridSizeX = newSizeX;
-                    this.gridSizeY = newSizeY;
+                    this.controls.gridSizeX = newSizeX;
+                    this.controls.gridSizeY = newSizeY;
 
                     // Reinitialize simulation with new sizes
                     this.updateCanvasSize();
                     this.initializeGrids();
-                    this.borderIndices = Helper.getBorderIndices(this.gridSizeX, this.gridSizeY);
+                    this.borderIndices = Helper.getBorderIndices(this.controls.gridSizeX, this.controls.gridSizeY);
                     this.updateBorderPixels();
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
 
                     // Clear the canvas and render
                     this.render();
@@ -724,7 +792,7 @@
                 <h3>Boundary Conditions</h3>
                 <div class="control-row">
                     <label>Periodic Boundary:</label>
-                    <input type="checkbox" id="pbcToggle">
+                    <input type="checkbox" id="pbcToggle" ${this.controls.usePBC ? 'checked' : ''}>
                 </div>
             `;
 
@@ -741,8 +809,8 @@
 
                 // Add event listener
                 document.getElementById('pbcToggle').addEventListener('change', (e) => {
-                    this.usePBC = e.target.checked;
-                    if (this.usePBC) {
+                    this.controls.usePBC = e.target.checked;
+                    if (this.controls.usePBC) {
                         this.borderPixels1.clear();
                         this.borderPixels2.clear();
                         this.borderPixels3.clear();
@@ -752,10 +820,16 @@
                     } else {
                         this.updateBorderPixels();
                     }
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
             }
 
             setupBlurControls() {
+                const kernelSize = this.controls.blurKernelSize;
+                const iterations = this.blurIterations;
+
                 const controlGroup = document.createElement('div');
                 controlGroup.className = 'control-group';
                 controlGroup.innerHTML = `
@@ -763,21 +837,21 @@
                 <div class="control-row">
                     <label>Kernel Size:</label>
                     <select id="kernelSize">
-                        <option value="3">3x3</option>
-                        <option value="5">5x5</option>
-                        <option value="7">7x7</option>
-                        <option value="9">9x9</option>
-                        <option value="11" selected>11x11</option>
-                        <option value="13">13x13</option>
-                        <option value="15">15x15</option>
-                        <option value="17">17x17</option>
-                        <option value="19">19x19</option>
+                        <option value="3"  ${kernelSize == 3  ? 'selected' : ''}>3x3</option>
+                        <option value="5"  ${kernelSize == 5  ? 'selected' : ''}>5x5</option>
+                        <option value="7"  ${kernelSize == 7  ? 'selected' : ''}>7x7</option>
+                        <option value="9"  ${kernelSize == 9  ? 'selected' : ''}>9x9</option>
+                        <option value="11" ${kernelSize == 11 ? 'selected' : ''}>11x11</option>
+                        <option value="13" ${kernelSize == 13 ? 'selected' : ''}>13x13</option>
+                        <option value="15" ${kernelSize == 15 ? 'selected' : ''}>15x15</option>
+                        <option value="17" ${kernelSize == 17 ? 'selected' : ''}>17x17</option>
+                        <option value="19" ${kernelSize == 19 ? 'selected' : ''}>19x19</option>
                     </select>
                 </div>
                 <div class="control-row">
                     <label>Iterations:</label>
-                    <input type="range" id="iterationsSetting" min="1" max="10" value="1">
-                    <span id="iterationsDisplay">1</span>
+                    <input type="range" id="iterationsSetting" min="1" max="10" value=${iterations}>
+                    <span id="iterationsDisplay">${iterations}</span>
                 </div>
             `;
 
@@ -787,15 +861,24 @@
 
                 // Add event listeners
                 document.getElementById('kernelSize').addEventListener('change', (e) => {
-                    this.kernelSize = parseInt(e.target.value);
-                    this.gaussianKernel1D = Helper.createGaussianKernel1D(this.sigma, this.kernelSize);
+                    this.controls.blurKernelSize = parseInt(e.target.value);
+                    this.gaussianKernel1D = Helper.createGaussianKernel1D(this.controls.sigma, this.controls.blurKernelSize);
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
 
                 const iterationsSlider = document.getElementById('iterationsSetting');
+                iterationsSlider.value = this.controls.blurIterations;
                 const iterationsDisplay = document.getElementById('iterationsDisplay');
+                iterationsDisplay.textContent = this.controls.blurIterations;
+
                 iterationsSlider.addEventListener('input', (e) => {
-                    this.iterations = parseInt(e.target.value);
-                    iterationsDisplay.textContent = this.iterations;
+                    this.controls.blurIterations = parseInt(e.target.value);
+                    iterationsDisplay.textContent = this.controls.blurIterations;
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
             }
 
@@ -823,7 +906,6 @@
                     field1Button.classList.remove('selected');
                     field2Button.classList.remove('selected');
                     field3Button.classList.add('selected');
-
                 });
             }
 
@@ -859,25 +941,40 @@
 
             setupBrushSizeControl() {
                 const brushSizeSlider = document.getElementById('brushSize');
+                brushSizeSlider.value = this.controls.brushSize;
                 const brushSizeDisplay = document.getElementById('brushSizeDisplay');
+                brushSizeDisplay.textContent = this.controls.brushSize;
 
                 brushSizeSlider.addEventListener('input', (e) => {
-                    this.brushSize = parseInt(e.target.value);
-                    brushSizeDisplay.textContent = this.brushSize;
+                    this.controls.brushSize = parseInt(e.target.value);
+                    brushSizeDisplay.textContent = this.controls.brushSize;
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
             }
 
             setupSimulationControls() {
                 const sigmaSlider = document.getElementById('sigmaSetting');
+                sigmaSlider.value = this.controls.sigma;
                 const sigmaDisplay = document.getElementById('sigmaDisplay');
+                sigmaDisplay.textContent = this.controls.sigma;
+
+                const temperatureSlider = document.getElementById('temperatureSetting');
+                temperatureSlider.value = this.controls.temperature;
+                const temperatureDisplay = document.getElementById('temperatureDisplay');
+                temperatureDisplay.textContent = this.controls.temperature
+
+                const gravitySlider = document.getElementById('gravitySetting');
+                gravitySlider.value = this.controls.gravity;
+                const gravityDisplay = document.getElementById('gravityDisplay');
+                gravityDisplay.textContent = this.controls.gravity;
+
+
                 const simulationStepsInput = document.getElementById('simulationSteps');
                 const startSimulationButton = document.getElementById('startSimulationButton');
                 const stopSimulationButton = document.getElementById('stopSimulationButton');
                 const currentStepDisplay = document.getElementById('currentStepDisplay');
-                const temperatureSlider = document.getElementById('temperatureSetting');
-                const temperatureDisplay = document.getElementById('temperatureDisplay');
-                const gravitySlider = document.getElementById('gravitySetting');
-                const gravityDisplay = document.getElementById('gravityDisplay');
 
                 // Interaction matrix inputs
                 const interactionIds = ['interaction11', 'interaction12', 'interaction13',
@@ -889,7 +986,7 @@
                     const input = document.getElementById(id);
                     const row = Math.floor(index / 3);
                     const col = index % 3;
-                    input.value = this.interactionMatrix[row][col]; // Set initial value from the matrix
+                    input.value = this.controls.interactionMatrix[row][col]; // Set initial value from the matrix
                 });
 
                 // Event listeners for interaction matrix inputs
@@ -898,27 +995,39 @@
                     input.addEventListener('input', (e) => {
                         const row = Math.floor(index / 3);
                         const col = index % 3;
-                        this.interactionMatrix[row][col] = parseFloat(e.target.value);
+                        this.controls.interactionMatrix[row][col] = parseFloat(e.target.value);
+
+                        // Update the URL.
+                        this.controls.encodeIntoUrl();
                     });
                 });
 
                 // Sigma slider
                 sigmaSlider.addEventListener('input', (e) => {
-                    this.sigma = parseFloat(e.target.value);
-                    sigmaDisplay.textContent = this.sigma.toFixed(1);
-                    this.gaussianKernel1D = Helper.createGaussianKernel1D(this.sigma, this.kernelSize);
+                    this.controls.sigma = parseFloat(e.target.value);
+                    sigmaDisplay.textContent = this.controls.sigma.toFixed(1);
+                    this.gaussianKernel1D = Helper.createGaussianKernel1D(this.controls.sigma, this.controls.blurKernelSize);
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
 
                 // Temperature slider
                 temperatureSlider.addEventListener('input', (e) => {
-                    this.temperature = parseFloat(e.target.value);
-                    temperatureDisplay.textContent = this.temperature.toFixed(2);
+                    this.controls.temperature = parseFloat(e.target.value);
+                    temperatureDisplay.textContent = this.controls.temperature.toFixed(2);
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
 
                 // Gravity slider
                 gravitySlider.addEventListener('input', (e) => {
-                    this.gravity = parseFloat(e.target.value);
-                    gravityDisplay.textContent = this.gravity.toFixed(2);
+                    this.controls.gravity = parseFloat(e.target.value);
+                    gravityDisplay.textContent = this.controls.gravity.toFixed(2);
+
+                    // Update the URL.
+                    this.controls.encodeIntoUrl();
                 });
 
                 // Simulation steps input
@@ -952,15 +1061,15 @@
                 const maxHeight = 900; // Maximum canvas height
 
                 // Calculate the cell size that will fit within max dimensions
-                const cellSizeX = Math.floor(maxWidth / this.gridSizeX);
-                const cellSizeY = Math.floor(maxHeight / this.gridSizeY);
+                const cellSizeX = Math.floor(maxWidth / this.controls.gridSizeX);
+                const cellSizeY = Math.floor(maxHeight / this.controls.gridSizeY);
 
                 // Use the smaller cell size to ensure square cells
                 this.cellSize = Math.min(cellSizeX, cellSizeY);
 
                 // Update canvas dimensions
-                this.canvas.width = this.gridSizeX * this.cellSize;
-                this.canvas.height = this.gridSizeY * this.cellSize;
+                this.canvas.width = this.controls.gridSizeX * this.cellSize;
+                this.canvas.height = this.controls.gridSizeY * this.cellSize;
 
                 // Clear any existing offscreen canvas
                 this.offscreenCanvas = null;
@@ -985,7 +1094,7 @@
                 const gridY = Math.floor(y / this.cellSize);
 
                 const grid = this.activeField === 1 ? this.grid1 : this.activeField === 2 ? this.grid2 : this.grid3;
-                const currentValue = Helper.getGridValue(gridX, gridY, grid, this.gridSizeX);
+                const currentValue = Helper.getGridValue(gridX, gridY, grid, this.controls.gridSizeX);
                 this.drawMode = currentValue > 0 ? 'remove' : 'add';
 
                 this.isDrawing = true;
@@ -1009,7 +1118,7 @@
                 const gridX = Math.floor(x / this.cellSize);
                 const gridY = Math.floor(y / this.cellSize);
 
-                const radius = this.brushSize / 2;
+                const radius = this.controls.brushSize / 2;
                 let pixelsChanged = false;
                 const grid = this.activeField === 1 ? this.grid1 : (this.activeField === 2 ? this.grid2 : this.grid3);
                 const boundaryGrid = this.activeField === 1 ? this.boundaryGrid1 : (this.activeField === 2 ? this.boundaryGrid2 : this.boundaryGrid3);
@@ -1020,15 +1129,15 @@
                         const checkY = gridY + dy;
 
                         if (Math.sqrt(dx * dx + dy * dy) <= radius) {
-                            if (checkX >= 0 && checkX < this.gridSizeX &&
-                                checkY >= 0 && checkY < this.gridSizeY) {
-                                const index = checkY * this.gridSizeX + checkX;
-                                const currentValue = Helper.getGridValue(checkX, checkY, grid, this.gridSizeX);
+                            if (checkX >= 0 && checkX < this.controls.gridSizeX &&
+                                checkY >= 0 && checkY < this.controls.gridSizeY) {
+                                const index = checkY * this.controls.gridSizeX + checkX;
+                                const currentValue = Helper.getGridValue(checkX, checkY, grid, this.controls.gridSizeX);
                                 const newValue = this.drawMode === 'add' ? 1 : 0;
 
                                 if (currentValue !== newValue) {
-                                    Helper.setGridValue(checkX, checkY, newValue, grid, this.gridSizeX);
-                                    if (!this.usePBC && this.borderIndices.includes(index)) {
+                                    Helper.setGridValue(checkX, checkY, newValue, grid, this.controls.gridSizeX);
+                                    if (!this.controls.usePBC && this.borderIndices.includes(index)) {
                                         boundaryGrid[index] = newValue;
                                     }
                                     pixelsChanged = true;
@@ -1110,25 +1219,29 @@
             }
 
             applyGaussianBlur() {
+                const c = this.controls;
+
                 // Apply independent blur to each field
                 if (this.npixels1 > 0) {
                     Helper.applySeparableBlur(
-                        this.grid1, this.blurredGrid1, this.borderPixels1, 
-                        this.tempGrid, this.iterations, this.gridSizeX, this.gridSizeY, this.kernelSize, this.usePBC, this.gaussianKernel1D, this.gravity);
+                        this.grid1, this.blurredGrid1, this.borderPixels1,
+                        this.tempGrid, c.blurIterations, c.gridSizeX, c.gridSizeY, c.blurKernelSize, c.usePBC, this.gaussianKernel1D, c.gravity);
                 }
                 if (this.npixels2 > 0) {
                     Helper.applySeparableBlur(
-                        this.grid2, this.blurredGrid2, this.borderPixels2, 
-                        this.tempGrid, this.iterations, this.gridSizeX, this.gridSizeY, this.kernelSize, this.usePBC, this.gaussianKernel1D, this.gravity);
+                        this.grid2, this.blurredGrid2, this.borderPixels2,
+                        this.tempGrid, c.blurIterations, c.gridSizeX, c.gridSizeY, c.blurKernelSize, c.usePBC, this.gaussianKernel1D, c.gravity);
                 }
                 if (this.npixels3 > 0) {
                     Helper.applySeparableBlur(
-                        this.grid3, this.blurredGrid3, this.borderPixels3, 
-                        this.tempGrid, this.iterations, this.gridSizeX, this.gridSizeY, this.kernelSize, this.usePBC, this.gaussianKernel1D, this.gravity);
+                        this.grid3, this.blurredGrid3, this.borderPixels3,
+                        this.tempGrid, c.blurIterations, c.gridSizeX, c.gridSizeY, c.blurKernelSize, c.usePBC, this.gaussianKernel1D, c.gravity);
                 }
             }
 
             applyCrossFieldInteractions() {
+                const matrix = this.controls.interactionMatrix;
+
                 for (let i = 0; i < this.grid1.length; i++) {
                     // Store the raw values for calculating the interactions (making a copy)
                     var rawBlurredGrid1 = this.blurredGrid1[i];
@@ -1136,38 +1249,38 @@
                     var rawBlurredGrid3 = this.blurredGrid3[i];
 
                     // Apply self-interaction first
-                    this.blurredGrid1[i] *= this.interactionMatrix[0][0]; // Field 1 self-interaction
-                    this.blurredGrid2[i] *= this.interactionMatrix[1][1]; // Field 2 self-interaction
-                    this.blurredGrid3[i] *= this.interactionMatrix[2][2]; // Field 3 self-interaction
+                    this.blurredGrid1[i] *= matrix[0][0]; // Field 1 self-interaction
+                    this.blurredGrid2[i] *= matrix[1][1]; // Field 2 self-interaction
+                    this.blurredGrid3[i] *= matrix[2][2]; // Field 3 self-interaction
 
                     if (!this.borderPixels1.has(i)) {
                         if (rawBlurredGrid2 >= 0.01) {
-                            this.blurredGrid1[i] += (0.5 - rawBlurredGrid2) * this.interactionMatrix[0][1] * 2; /* Miscibility */
-                            //this.blurredGrid1[i] += (0.5 - rawBlurredGrid2) * this.interactionMatrix[0][1]; /* Interface */
+                            this.blurredGrid1[i] += (0.5 - rawBlurredGrid2) * matrix[0][1] * 2; /* Miscibility */
+                            //this.blurredGrid1[i] += (0.5 - rawBlurredGrid2) * matrix[0][1]; /* Interface */
                         }
                         if (rawBlurredGrid3 >= 0.01) {
-                            this.blurredGrid1[i] += (0.5 - rawBlurredGrid3) * this.interactionMatrix[0][2] * 2;
-                            //this.blurredGrid1[i] += (0.5 - rawBlurredGrid3) * this.interactionMatrix[0][2];
+                            this.blurredGrid1[i] += (0.5 - rawBlurredGrid3) * matrix[0][2] * 2;
+                            //this.blurredGrid1[i] += (0.5 - rawBlurredGrid3) * matrix[0][2];
                         }
                     }
                     if (!this.borderPixels2.has(i)) {
                         if (rawBlurredGrid1 >= 0.01) {
-                            //this.blurredGrid2[i] += rawBlurredGrid1 * this.interactionMatrix[1][0];
-                            this.blurredGrid2[i] += (0.5 - rawBlurredGrid1) * this.interactionMatrix[1][0] * 2;
+                            //this.blurredGrid2[i] += rawBlurredGrid1 * matrix[1][0];
+                            this.blurredGrid2[i] += (0.5 - rawBlurredGrid1) * matrix[1][0] * 2;
                         }
                         if (rawBlurredGrid3 >= 0.01) {
-                            //this.blurredGrid2[i] += rawBlurredGrid3 * this.interactionMatrix[1][2];
-                            this.blurredGrid2[i] += (0.5 - rawBlurredGrid3) * this.interactionMatrix[1][2] * 2;
+                            //this.blurredGrid2[i] += rawBlurredGrid3 * matrix[1][2];
+                            this.blurredGrid2[i] += (0.5 - rawBlurredGrid3) * matrix[1][2] * 2;
                         }
                     }
                     if (!this.borderPixels3.has(i)) {
                         if (rawBlurredGrid1 >= 0.01) {
-                            //this.blurredGrid3[i] += rawBlurredGrid1 * this.interactionMatrix[2][0];
-                            this.blurredGrid3[i] += (0.5 - rawBlurredGrid1) * this.interactionMatrix[2][0] * 2;
+                            //this.blurredGrid3[i] += rawBlurredGrid1 * matrix[2][0];
+                            this.blurredGrid3[i] += (0.5 - rawBlurredGrid1) * matrix[2][0] * 2;
                         }
                         if (rawBlurredGrid2 >= 0.01) {
-                            //this.blurredGrid3[i] += rawBlurredGrid2 * this.interactionMatrix[2][1];
-                            this.blurredGrid3[i] += (0.5 - rawBlurredGrid2) * this.interactionMatrix[2][1] * 2;
+                            //this.blurredGrid3[i] += rawBlurredGrid2 * matrix[2][1];
+                            this.blurredGrid3[i] += (0.5 - rawBlurredGrid2) * matrix[2][1] * 2;
                         }
                     }
                 }
@@ -1175,29 +1288,29 @@
 
             rollDice() {
                 // Roll the dice on the discretized grid to prepare for discretization
-                if ((!this.lockField1) && (this.npixels1 > 0)) {
-                    Helper.rollDiceSingleField(this.blurredGrid1, this.borderPixels1, this.temperature);
+                if ((!this.controls.lockField1) && (this.npixels1 > 0)) {
+                    Helper.rollDiceSingleField(this.blurredGrid1, this.borderPixels1, this.controls.temperature);
                 }
-                if ((!this.lockField2) && (this.npixels2 > 0)) {
-                    Helper.rollDiceSingleField(this.blurredGrid2, this.borderPixels2, this.temperature);
+                if ((!this.controls.lockField2) && (this.npixels2 > 0)) {
+                    Helper.rollDiceSingleField(this.blurredGrid2, this.borderPixels2, this.controls.temperature);
                 }
-                if ((!this.lockField3) && (this.npixels3 > 0)) {
-                    Helper.rollDiceSingleField(this.blurredGrid3, this.borderPixels3, this.temperature);
+                if ((!this.controls.lockField3) && (this.npixels3 > 0)) {
+                    Helper.rollDiceSingleField(this.blurredGrid3, this.borderPixels3, this.controls.temperature);
                 }
             }
 
             discretize() {
                 // Apply the discretization in the smooth field
-                if ((!this.lockField1) && (this.npixels1 > 0)) {
-                    Helper.discretizeSingleField(this.blurredGrid1, this.npixels1, this.borderPixels1, this.boundaryGrid1, this.usePBC, this.borderIndices);
+                if ((!this.controls.lockField1) && (this.npixels1 > 0)) {
+                    Helper.discretizeSingleField(this.blurredGrid1, this.npixels1, this.borderPixels1, this.boundaryGrid1, this.controls.usePBC, this.borderIndices);
                     this.grid1.set(this.blurredGrid1); // Copy back from smoothing to discretized field
                 }
-                if ((!this.lockField2) && (this.npixels2 > 0)) {
-                    Helper.discretizeSingleField(this.blurredGrid2, this.npixels2, this.borderPixels2, this.boundaryGrid2, this.usePBC, this.borderIndices);
+                if ((!this.controls.lockField2) && (this.npixels2 > 0)) {
+                    Helper.discretizeSingleField(this.blurredGrid2, this.npixels2, this.borderPixels2, this.boundaryGrid2, this.controls.usePBC, this.borderIndices);
                     this.grid2.set(this.blurredGrid2); // Copy back from smoothing to discretized field
                 }
-                if ((!this.lockField3) && (this.npixels3 > 0)) {
-                    Helper.discretizeSingleField(this.blurredGrid3, this.npixels3, this.borderPixels3, this.boundaryGrid3, this.usePBC, this.borderIndices);
+                if ((!this.controls.lockField3) && (this.npixels3 > 0)) {
+                    Helper.discretizeSingleField(this.blurredGrid3, this.npixels3, this.borderPixels3, this.boundaryGrid3, this.controls.usePBC, this.borderIndices);
                     this.grid3.set(this.blurredGrid3); // Copy back from smoothing to discretized field
                 }
             }
@@ -1209,12 +1322,12 @@
                 this.borderPixels3.clear();
 
                 // Skip border pixel updates if using PBC and no fields are locked
-                if (this.usePBC && !this.lockField1 && !this.lockField2 && !this.lockField3) {
+                if (this.controls.usePBC && !this.controls.lockField1 && !this.controls.lockField2 && !this.controls.lockField3) {
                     return;
                 }
 
                 // Add boundary pixels
-                if (!this.usePBC) {
+                if (!this.controls.usePBC) {
                     for (const index of this.borderIndices) {
                         if (this.boundaryGrid1[index] > 0) {
                             this.borderPixels1.add(index);
@@ -1229,7 +1342,7 @@
                 }
 
                 // If field 1 is locked, add all non-zero pixels to the border set
-                if (this.lockField1) {
+                if (this.controls.lockField1) {
                     for (let i = 0; i < this.grid1.length; i++) {
                         if (this.grid1[i] > 0) {
                             this.borderPixels1.add(i);
@@ -1238,7 +1351,7 @@
                 }
 
                 // If field 2 is locked, add all non-zero pixels to the border set
-                if (this.lockField2) {
+                if (this.controls.lockField2) {
                     for (let i = 0; i < this.grid2.length; i++) {
                         if (this.grid2[i] > 0) {
                             this.borderPixels2.add(i);
@@ -1247,7 +1360,7 @@
                 }
 
                 // If field 3 is locked, add all non-zero pixels to the border set
-                if (this.lockField3) {
+                if (this.controls.lockField3) {
                     for (let i = 0; i < this.grid3.length; i++) {
                         if (this.grid3[i] > 0) {
                             this.borderPixels3.add(i);
@@ -1277,11 +1390,11 @@
                 const bytesPerCell = this.cellSize * 4;
                 const bytesPerRow = this.canvas.width * 4;
 
-                for (let y = 0; y < this.gridSizeY; y++) {
-                    const gridRowOffset = y * this.gridSizeX;
+                for (let y = 0; y < this.controls.gridSizeY; y++) {
+                    const gridRowOffset = y * this.controls.gridSizeX;
                     const canvasRowOffset = y * this.cellSize * bytesPerRow;
 
-                    for (let x = 0; x < this.gridSizeX; x++) {
+                    for (let x = 0; x < this.controls.gridSizeX; x++) {
                         const value1 = this.blurredGrid1[gridRowOffset + x];
                         const value2 = this.blurredGrid2[gridRowOffset + x];
                         const value3 = this.blurredGrid3[gridRowOffset + x];
@@ -1317,8 +1430,12 @@
             }
         }
 
+        // Get the control values from the url (if any).
+        const searchQuery = window.location.search;
+        const controls = new SimulationControls(searchQuery);
+
         // Initialize the simulation
-        const pixelSim = new PixelSimulation('particleCanvas', 150, 150);
+        const pixelSim = new PixelSimulation('particleCanvas', controls);
     </script>
 </body>
 </html>
