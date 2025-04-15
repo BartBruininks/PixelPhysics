@@ -427,35 +427,85 @@
                         grid[index] = boundaryGrid[index];
                     }
                 }
-
+                
                 // Calculate how many non-boundary pixels we need
                 const nonBorderPixelCount = targetCount - Array.from(borderPixels).reduce((sum, index) => sum + grid[index], 0);
-
-                // Create arrays for sorting non-boundary pixels
-                const values = [];
+                
+                // Use an array of indices only (no separate values array)
                 const indices = [];
-
                 for (let i = 0; i < grid.length; i++) {
                     if (!borderPixels.has(i)) {
-                        values.push(grid[i]);
                         indices.push(i);
                     }
                 }
-
-                // Sort indices by their corresponding values
-                indices.sort((a, b) => grid[b] - grid[a]);
-
+                
+                // Use quickselect to find the threshold value
+                if (nonBorderPixelCount > 0 && nonBorderPixelCount < indices.length) {
+                    const k = nonBorderPixelCount;
+                    this.quickSelect(indices, 0, indices.length - 1, k, grid);
+                }
+                
                 // Reset non-boundary pixels
                 for (let i = 0; i < grid.length; i++) {
                     if (!borderPixels.has(i)) {
                         grid[i] = 0;
                     }
                 }
-
+                
                 // Set top N non-boundary pixels to 1
                 for (let i = 0; i < nonBorderPixelCount && i < indices.length; i++) {
                     grid[indices[i]] = 1;
                 }
+            }
+
+            // QuickSelect to efficiently find the kth largest element
+            // This is O(n) on average instead of O(n log n) for sorting
+            static quickSelect(indices, left, right, k, grid) {
+                if (left === right) {
+                    return;
+                }
+                
+                // Use median-of-three for better pivot selection
+                const mid = Math.floor((left + right) / 2);
+                if (grid[indices[right]] > grid[indices[mid]]) {
+                    [indices[right], indices[mid]] = [indices[mid], indices[right]];
+                }
+                if (grid[indices[mid]] > grid[indices[left]]) {
+                    [indices[left], indices[mid]] = [indices[mid], indices[left]];
+                }
+                if (grid[indices[right]] > grid[indices[left]]) {
+                    [indices[right], indices[left]] = [indices[left], indices[right]];
+                }
+                
+                const pivotIndex = this.partition(indices, left, right, grid);
+                
+                // The pivot is in its final sorted position
+                if (pivotIndex === k - 1) {
+                    return;
+                }
+                // If k is less than the pivot position, look in the left part
+                else if (k - 1 < pivotIndex) {
+                    this.quickSelect(indices, left, pivotIndex - 1, k, grid);
+                }
+                // If k is greater than the pivot position, look in the right part
+                else {
+                    this.quickSelect(indices, pivotIndex + 1, right, k, grid);
+                }
+            }
+
+            static partition(indices, left, right, grid) {
+                const pivotValue = grid[indices[left]];
+                let i = left + 1;
+                
+                for (let j = left + 1; j <= right; j++) {
+                    if (grid[indices[j]] > pivotValue) {
+                        [indices[i], indices[j]] = [indices[j], indices[i]];
+                        i++;
+                    }
+                }
+                
+                [indices[left], indices[i - 1]] = [indices[i - 1], indices[left]];
+                return i - 1;
             }
 
             static getGridValue(x, y, grid, gridSizeX) {
@@ -731,12 +781,12 @@
                 <h3>Grid Size Controls</h3>
                 <div class="control-row">
                     <label>X Size:</label>
-                    <input type="range" id="gridSizeX" min="50" max="300" value="${this.controls.gridSizeX}">
+                    <input type="range" id="gridSizeX" min="10" max="300" value="${this.controls.gridSizeX}">
                     <span id="gridSizeXDisplay">${this.controls.gridSizeX}</span>
                 </div>
                 <div class="control-row">
                     <label>Y Size:</label>
-                    <input type="range" id="gridSizeY" min="50" max="300" value="${this.controls.gridSizeY}">
+                    <input type="range" id="gridSizeY" min="10" max="300" value="${this.controls.gridSizeY}">
                     <span id="gridSizeYDisplay">${this.controls.gridSizeY}</span>
                 </div>
                 <div class="control-row">
