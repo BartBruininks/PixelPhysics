@@ -1303,33 +1303,29 @@
                     this.blurredGrid2[i] *= matrix[1][1]; // Field 2 self-interaction
                     this.blurredGrid3[i] *= matrix[2][2]; // Field 3 self-interaction
 
-                    if (!this.borderPixels1.has(i)) {
+                    // Remember that in a field after normalized gaussian blurring, the values are in the range of 0 and 1.
+                    // Where 1 represents true bulk and values close to 0 represent the interface.
+                    if ((this.npixels1 > 0) && (!this.borderPixels1.has(i))) {
                         if (rawBlurredGrid2 >= 0.01) {
-                            this.blurredGrid1[i] += (0.5 - rawBlurredGrid2) * matrix[0][1] * 2; /* Miscibility */
-                            //this.blurredGrid1[i] += (0.5 - rawBlurredGrid2) * matrix[0][1]; /* Interface */
+                            this.blurredGrid1[i] += (0.5 - rawBlurredGrid2) * matrix[0][1] * 2;
                         }
                         if (rawBlurredGrid3 >= 0.01) {
                             this.blurredGrid1[i] += (0.5 - rawBlurredGrid3) * matrix[0][2] * 2;
-                            //this.blurredGrid1[i] += (0.5 - rawBlurredGrid3) * matrix[0][2];
                         }
                     }
-                    if (!this.borderPixels2.has(i)) {
+                    if ((this.npixels2 > 0) && (!this.borderPixels2.has(i))) {
                         if (rawBlurredGrid1 >= 0.01) {
-                            //this.blurredGrid2[i] += rawBlurredGrid1 * matrix[1][0];
                             this.blurredGrid2[i] += (0.5 - rawBlurredGrid1) * matrix[1][0] * 2;
                         }
                         if (rawBlurredGrid3 >= 0.01) {
-                            //this.blurredGrid2[i] += rawBlurredGrid3 * matrix[1][2];
                             this.blurredGrid2[i] += (0.5 - rawBlurredGrid3) * matrix[1][2] * 2;
                         }
                     }
-                    if (!this.borderPixels3.has(i)) {
+                    if ((this.npixels3 > 0) && (!this.borderPixels3.has(i))) {
                         if (rawBlurredGrid1 >= 0.01) {
-                            //this.blurredGrid3[i] += rawBlurredGrid1 * matrix[2][0];
                             this.blurredGrid3[i] += (0.5 - rawBlurredGrid1) * matrix[2][0] * 2;
                         }
                         if (rawBlurredGrid2 >= 0.01) {
-                            //this.blurredGrid3[i] += rawBlurredGrid2 * matrix[2][1];
                             this.blurredGrid3[i] += (0.5 - rawBlurredGrid2) * matrix[2][1] * 2;
                         }
                     }
