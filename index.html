@@ -325,7 +325,7 @@
                 return kernel;
             }
 
-            static applySeparableBlur(inputGrid, outputGrid, borderPixels, tempGrid, iterations, gridSizeX, gridSizeY, kernelSize, usePBC, gaussianKernel1D, gravity) {
+            static applySeparableBlur(inputGrid, outputGrid, borderPixels, tempGrid, iterations, gridSizeX, gridSizeY, kernelSize, usePBC, gaussianKernel1D) {
                 // Fully reset temporary grid
                 tempGrid.fill(0);
 
@@ -338,7 +338,7 @@
                     this._horizontalPass(inputGrid, tempGrid, borderPixels, gridSizeX, gridSizeY, kernelSize, usePBC, gaussianKernel1D);
 
                     // Vertical pass
-                    this._verticalPass(tempGrid, outputGrid, borderPixels, gridSizeX, gridSizeY, kernelSize, usePBC, gaussianKernel1D, gravity);
+                    this._verticalPass(tempGrid, outputGrid, borderPixels, gridSizeX, gridSizeY, kernelSize, usePBC, gaussianKernel1D);
                 }
             }
 
@@ -373,7 +373,7 @@
                 }
             }
 
-            static _verticalPass(input, output, borderPixels, gridSizeX, gridSizeY, kernelSize, usePBC, gaussianKernel1D, gravity) {
+            static _verticalPass(input, output, borderPixels, gridSizeX, gridSizeY, kernelSize, usePBC, gaussianKernel1D) {
                 const radius = Math.floor(kernelSize / 2);
 
                 for (let x = 0; x < gridSizeX; x++) {
@@ -393,16 +393,6 @@
 
                             const sourceIndex = sourceY * gridSizeX + x;
                             let weight = gaussianKernel1D[i + radius];
-                            
-                            /* Turning off gravity in a dirty manner for now
-                            if (!usePBC) {
-                                if (i > 0) {
-                                    weight *= Math.pow(1 - gravity, i);
-                                } else if (i < 0) {
-                                    weight *= Math.pow(1 + gravity / 2, Math.abs(i));
-                                }
-                            }
-                            */
 
                             sum += input[sourceIndex] * weight;
                             weightSum += weight;
@@ -1280,17 +1270,17 @@
                 if (this.npixels1 > 0) {
                     Helper.applySeparableBlur(
                         this.grid1, this.blurredGrid1, this.borderPixels1,
-                        this.tempGrid, c.blurIterations, c.gridSizeX, c.gridSizeY, c.blurKernelSize, c.usePBC, this.gaussianKernel1D, c.gravity);
+                        this.tempGrid, c.blurIterations, c.gridSizeX, c.gridSizeY, c.blurKernelSize, c.usePBC, this.gaussianKernel1D);
                 }
                 if (this.npixels2 > 0) {
                     Helper.applySeparableBlur(
                         this.grid2, this.blurredGrid2, this.borderPixels2,
-                        this.tempGrid, c.blurIterations, c.gridSizeX, c.gridSizeY, c.blurKernelSize, c.usePBC, this.gaussianKernel1D, c.gravity);
+                        this.tempGrid, c.blurIterations, c.gridSizeX, c.gridSizeY, c.blurKernelSize, c.usePBC, this.gaussianKernel1D);
                 }
                 if (this.npixels3 > 0) {
                     Helper.applySeparableBlur(
                         this.grid3, this.blurredGrid3, this.borderPixels3,
-                        this.tempGrid, c.blurIterations, c.gridSizeX, c.gridSizeY, c.blurKernelSize, c.usePBC, this.gaussianKernel1D, c.gravity);
+                        this.tempGrid, c.blurIterations, c.gridSizeX, c.gridSizeY, c.blurKernelSize, c.usePBC, this.gaussianKernel1D);
                 }
             }
 
@@ -1305,7 +1295,7 @@
 
                     // Apply self-interaction first
                     this.blurredGrid1[i] *= matrix[0][0]; // Field 1 self-interaction
-                    this.blurredGrid2[i] *= matrix[1][1]; // Field 2 self-interaction
+                    this.blurredGrid2[i] *= matrix[1][1]; // Field 2 self-interactions
                     this.blurredGrid3[i] *= matrix[2][2]; // Field 3 self-interaction
 
                     // Add field biases such as gravity (gravity based on y component)
