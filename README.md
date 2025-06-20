@@ -24,7 +24,7 @@ By locking the red field and making sure the blue field is in the liquid domain,
 4) The self interactions scale the blurred gaussian values
 5) The cross interactions ($CI$) are calculated per pixel as $Fa_i += (0.5 - Fb_i) * CI_{ab} * 2$ if $0.1 < Fb_j < 1.0$ (interface like interaction)
 6) For each pixel in each field a random value is added and multiplied with the temperature
-7) Each field ($F_i$) is discretized by argsorting the field and picking the $N_i$ highest values
+7) Each field ($F_i$) is discretized by quickselect partitioning the field and picking the $N_i$ highest values (O(N) on average)
 
 # Thus far observed phenomena
 It would be cool if we can create a set of examples which shows the following phenomena. Thus far I have shown these in presentations, but it would be really nice if we have a collection of them all with screenshots and their settings in our wiki. However, the exact settings might change as the code is still being developed. Nevertheless, having listed (with images/videos) all the cool things we can demonstrate would no doubt be useful.
