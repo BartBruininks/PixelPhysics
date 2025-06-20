@@ -240,7 +240,7 @@
                 </div>
                 <div class="control-row">
                     <label>Gravity:</label>
-                    <input type="range" id="gravitySetting" min="0" max="0.5" step="0.01">
+                    <input type="range" id="gravitySetting" min="0" max="2.0" step="0.02">
                     <span id="gravityDisplay"></span>
                 </div>
             </div>
@@ -393,7 +393,8 @@
 
                             const sourceIndex = sourceY * gridSizeX + x;
                             let weight = gaussianKernel1D[i + radius];
-
+                            
+                            /* Turning off gravity in a dirty manner for now
                             if (!usePBC) {
                                 if (i > 0) {
                                     weight *= Math.pow(1 - gravity, i);
@@ -401,6 +402,7 @@
                                     weight *= Math.pow(1 + gravity / 2, Math.abs(i));
                                 }
                             }
+                            */
 
                             sum += input[sourceIndex] * weight;
                             weightSum += weight;
@@ -415,6 +417,9 @@
                 for (let i = 0; i < grid.length; i++) {
                     if (!borderPixels.has(i)) {
                         const randomValue = Math.random();
+                        // Remember, the max value after smearing is 1 for a completely bulk pixel
+                        // this stays the same whenever we increase our sigma or kernel size
+                        // so we do not need to take it into account as we would multiply by 1 here!?
                         grid[i] += (randomValue * temperature);
                     }
                 }
@@ -1303,9 +1308,14 @@
                     this.blurredGrid2[i] *= matrix[1][1]; // Field 2 self-interaction
                     this.blurredGrid3[i] *= matrix[2][2]; // Field 3 self-interaction
 
+                    // Add field biases such as gravity (gravity based on y component)
+                    var effective_gravity = ((i / this.controls.gridSizeX) / this.controls.gridSizeY) * this.controls.gravity;
+
                     // Remember that in a field after normalized gaussian blurring, the values are in the range of 0 and 1.
                     // Where 1 represents true bulk and values close to 0 represent the interface.
                     if ((this.npixels1 > 0) && (!this.borderPixels1.has(i))) {
+                        this.blurredGrid1[i] += effective_gravity; // Field 1 gravity 
+                        
                         if (rawBlurredGrid2 >= 0.01) {
                             this.blurredGrid1[i] += (0.5 - rawBlurredGrid2) * matrix[0][1] * 2;
                         }
@@ -1314,6 +1324,8 @@
                         }
                     }
                     if ((this.npixels2 > 0) && (!this.borderPixels2.has(i))) {
+                        this.blurredGrid2[i] += effective_gravity; // Field 2 gravity 
+
                         if (rawBlurredGrid1 >= 0.01) {
                             this.blurredGrid2[i] += (0.5 - rawBlurredGrid1) * matrix[1][0] * 2;
                         }
@@ -1322,6 +1334,8 @@
                         }
                     }
                     if ((this.npixels3 > 0) && (!this.borderPixels3.has(i))) {
+                        this.blurredGrid3[i] += effective_gravity; // Field 3 gravity 
+
                         if (rawBlurredGrid1 >= 0.01) {
                             this.blurredGrid3[i] += (0.5 - rawBlurredGrid1) * matrix[2][0] * 2;
                         }
