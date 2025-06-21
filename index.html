@@ -235,7 +235,7 @@
                 </div>
                 <div class="control-row">
                     <label>Temperature:</label>
-                    <input type="range" id="temperatureSetting" min="0" max="5" step="0.02">
+                    <input type="range" id="temperatureSetting" min="0" max=".5" step="0.001">
                     <span id="temperatureDisplay"></span>
                 </div>
                 <div class="control-row">
@@ -404,13 +404,20 @@
             }
 
             static rollDiceSingleField(grid, borderPixels, temperature) {
-                for (let i = 0; i < grid.length; i++) {
+                const size = grid.length;
+                
+                // Generate all random numbers at once
+                const randoms = new Array(size);
+                for (let i = 0; i < size; i++) {
+                    // Avoid exactly 0 or 1 to prevent log(0) issues
+                    randoms[i] = Math.max(1e-15, Math.min(1 - 1e-15, Math.random()));
+                }
+                
+                // Apply noise, skipping border pixels
+                for (let i = 0; i < size; i++) {
                     if (!borderPixels.has(i)) {
-                        const randomValue = Math.random();
-                        // Remember, the max value after smearing is 1 for a completely bulk pixel
-                        // this stays the same whenever we increase our sigma or kernel size
-                        // so we do not need to take it into account as we would multiply by 1 here!?
-                        grid[i] += (randomValue * temperature);
+                        // Converting the noise into Gumbel noise
+                        grid[i] += -temperature * Math.log(-Math.log(randoms[i]));
                     }
                 }
             }
@@ -611,7 +618,7 @@
                 this.brushSize = getIntParam('brushSize', 10);
 
                 this.sigma = getFloatParam('sigma', 1.5);
-                this.temperature = getFloatParam('temperature', 0.5);
+                this.temperature = getFloatParam('temperature', 0.100);
                 this.gravity = getFloatParam('gravity', 0.0);
 
                 this.blurKernelSize = getIntParam('blurKernelSize', 11);
@@ -1060,7 +1067,7 @@
                 // Temperature slider
                 temperatureSlider.addEventListener('input', (e) => {
                     this.controls.temperature = parseFloat(e.target.value);
-                    temperatureDisplay.textContent = this.controls.temperature.toFixed(2);
+                    temperatureDisplay.textContent = this.controls.temperature.toFixed(3);
 
                     // Update the URL.
                     this.controls.encodeIntoUrl();
