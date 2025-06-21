@@ -32,7 +32,7 @@ It would be cool if we can create a set of examples which shows the following ph
 - Crystaline solids (squares and diamonds)
 - Oswald ripening
 - Liquids (with increased ruffling of their boundary with increasing temperature)
-- Liquid-Gas coexistence
+- Liquid-Gas / Solid-Gas phase coexistence (Thanks to Agur Sevink who pointed out my temperature was not correct!)
 - (Non-)perfect gasses
 - Droplets of defined size
 - Treadmilling
