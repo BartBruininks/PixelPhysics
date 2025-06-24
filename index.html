@@ -403,6 +403,98 @@
                 }
             }
 
+            static discretizeCombinedFields(
+                grid1, npixels1, borderPixels1, boundaryGrid1,
+                grid2, npixels2, borderPixels2, boundaryGrid2,
+                grid3, npixels3, borderPixels3, boundaryGrid3,
+                usePBC, borderIndices
+            ) {
+                // Build arrays of active fields and their parameters
+                const grids = [];
+                const targetCounts = [];
+                const borderPixelsSets = [];
+                const boundaryGrids = [];
+                
+                if (grid1 && npixels1 > 0) {
+                    grids.push(grid1);
+                    targetCounts.push(npixels1);
+                    borderPixelsSets.push(borderPixels1);
+                    boundaryGrids.push(boundaryGrid1);
+                }
+                if (grid2 && npixels2 > 0) {
+                    grids.push(grid2);
+                    targetCounts.push(npixels2);
+                    borderPixelsSets.push(borderPixels2);
+                    boundaryGrids.push(boundaryGrid2);
+                }
+                if (grid3 && npixels3 > 0) {
+                    grids.push(grid3);
+                    targetCounts.push(npixels3);
+                    borderPixelsSets.push(borderPixels3);
+                    boundaryGrids.push(boundaryGrid3);
+                }
+                
+                if (grids.length === 0) return;
+                
+                const numFields = grids.length;
+                const gridSize = grids[0].length;
+                
+                // Restore boundary pixels if not using PBC
+                if (!usePBC) {
+                    for (let fieldIdx = 0; fieldIdx < numFields; fieldIdx++) {
+                        for (const index of borderIndices) {
+                            grids[fieldIdx][index] = boundaryGrids[fieldIdx][index];
+                        }
+                    }
+                }
+                
+                // Calculate quotas for non-boundary pixels
+                const quotas = targetCounts.map((targetCount, fieldIdx) => 
+                    targetCount - Array.from(borderPixelsSets[fieldIdx]).reduce((sum, index) => 
+                        sum + grids[fieldIdx][index], 0)
+                );
+                
+                // Create combined candidate list: [value, fieldIndex, pixelIndex]
+                const candidates = [];
+                for (let fieldIdx = 0; fieldIdx < numFields; fieldIdx++) {
+                    for (let pixelIdx = 0; pixelIdx < gridSize; pixelIdx++) {
+                        if (!borderPixelsSets[fieldIdx].has(pixelIdx)) {
+                            candidates.push([grids[fieldIdx][pixelIdx], fieldIdx, pixelIdx]);
+                        }
+                    }
+                }
+                
+                // Sort all candidates by value (descending)
+                candidates.sort((a, b) => b[0] - a[0]);
+                
+                // Reset all non-boundary pixels
+                for (let fieldIdx = 0; fieldIdx < numFields; fieldIdx++) {
+                    for (let pixelIdx = 0; pixelIdx < gridSize; pixelIdx++) {
+                        if (!borderPixelsSets[fieldIdx].has(pixelIdx)) {
+                            grids[fieldIdx][pixelIdx] = 0;
+                        }
+                    }
+                }
+                
+                // Assign pixels greedily while respecting quotas
+                const assigned = new Array(numFields).fill(0);
+                const assigned_pixels = new Set();
+                
+                for (const [value, fieldIdx, pixelIdx] of candidates) {
+                    // Check if this field still has quota available and if pixel is not already occupied
+                    if ((assigned[fieldIdx] < quotas[fieldIdx]) && !(assigned_pixels.has(pixelIdx))) {
+                        grids[fieldIdx][pixelIdx] = 1;
+                        assigned_pixels.add(pixelIdx)
+                        assigned[fieldIdx]++;
+                    }
+                    
+                    // Early termination if all quotas are filled
+                    if (assigned.every((count, idx) => count >= quotas[idx])) {
+                        break;
+                    }
+                }
+            }
+
             static rollDiceSingleField(grid, borderPixels, temperature) {
                 const size = grid.length;
                 
@@ -1245,11 +1337,6 @@
                 const t3 = performance.now();
                 this.performance.addMetric('blur', t3 - t2);
 
-                const t8 = performance.now();
-                this.render();
-                const t9 = performance.now();
-                this.performance.addMetric('render', t9 - t8);
-
                 const t10 = performance.now();
                 this.applyCrossFieldInteractions();
                 const t11 = performance.now();
@@ -1264,6 +1351,11 @@
                 this.discretize();
                 const t7 = performance.now();
                 this.performance.addMetric('discretize', t7 - t6);
+
+                const t8 = performance.now();
+                this.render();
+                const t9 = performance.now();
+                this.performance.addMetric('render', t9 - t8);
 
                 if (this.currentStep % 100 === 0) {
                     this.performance.logPerformance();
@@ -1295,15 +1387,16 @@
                 const matrix = this.controls.interactionMatrix;
 
                 for (let i = 0; i < this.grid1.length; i++) {
+
                     // Store the raw values for calculating the interactions (making a copy)
-                    var rawBlurredGrid1 = this.blurredGrid1[i];
-                    var rawBlurredGrid2 = this.blurredGrid2[i];
-                    var rawBlurredGrid3 = this.blurredGrid3[i];
+                    var rawBlurredGrid1 = this.blurredGrid1[i] ; // Self-interaction for field 1
+                    var rawBlurredGrid2 = this.blurredGrid2[i] ; // Self-interaction for field 2
+                    var rawBlurredGrid3 = this.blurredGrid3[i] ; // Self-interaction for field 3
 
                     // Apply self-interaction first
-                    this.blurredGrid1[i] *= matrix[0][0]; // Field 1 self-interaction
-                    this.blurredGrid2[i] *= matrix[1][1]; // Field 2 self-interactions
-                    this.blurredGrid3[i] *= matrix[2][2]; // Field 3 self-interaction
+                    this.blurredGrid1[i] = rawBlurredGrid1 * matrix[0][0]; // Field 1 self-interaction
+                    this.blurredGrid2[i] = rawBlurredGrid2 * matrix[1][1]; // Field 2 self-interactions
+                    this.blurredGrid3[i] = rawBlurredGrid3 * matrix[2][2]; // Field 3 self-interaction
 
                     // Add field biases such as gravity (gravity based on y component)
                     var effective_gravity = ((i / this.controls.gridSizeX) / this.controls.gridSizeY) * this.controls.gravity;
@@ -1314,30 +1407,30 @@
                         this.blurredGrid1[i] += effective_gravity; // Field 1 gravity 
                         
                         if (rawBlurredGrid2 >= 0.01) {
-                            this.blurredGrid1[i] += (0.5 - rawBlurredGrid2) * matrix[0][1] * 2;
+                            this.blurredGrid1[i] += rawBlurredGrid2 * matrix[0][1];// * rawBlurredGrid1; // Interaction with field 1-2
                         }
                         if (rawBlurredGrid3 >= 0.01) {
-                            this.blurredGrid1[i] += (0.5 - rawBlurredGrid3) * matrix[0][2] * 2;
+                            this.blurredGrid1[i] += rawBlurredGrid3 * matrix[0][2];// * rawBlurredGrid1; // Interaction with field 1-3
                         }
                     }
                     if ((this.npixels2 > 0) && (!this.borderPixels2.has(i))) {
                         this.blurredGrid2[i] += effective_gravity; // Field 2 gravity 
 
                         if (rawBlurredGrid1 >= 0.01) {
-                            this.blurredGrid2[i] += (0.5 - rawBlurredGrid1) * matrix[1][0] * 2;
+                            this.blurredGrid2[i] += rawBlurredGrid1 * matrix[1][0];// * rawBlurredGrid2; // Interaction with field 2-1
                         }
                         if (rawBlurredGrid3 >= 0.01) {
-                            this.blurredGrid2[i] += (0.5 - rawBlurredGrid3) * matrix[1][2] * 2;
+                            this.blurredGrid2[i] += rawBlurredGrid3 * matrix[1][2];// * rawBlurredGrid2; // Interaction with field 2-3
                         }
                     }
                     if ((this.npixels3 > 0) && (!this.borderPixels3.has(i))) {
                         this.blurredGrid3[i] += effective_gravity; // Field 3 gravity 
 
                         if (rawBlurredGrid1 >= 0.01) {
-                            this.blurredGrid3[i] += (0.5 - rawBlurredGrid1) * matrix[2][0] * 2;
+                            this.blurredGrid3[i] += rawBlurredGrid1 * matrix[2][0];// * rawBlurredGrid3; // Interaction with field 3-1
                         }
                         if (rawBlurredGrid2 >= 0.01) {
-                            this.blurredGrid3[i] += (0.5 - rawBlurredGrid2) * matrix[2][1] * 2;
+                            this.blurredGrid3[i] += rawBlurredGrid2 * matrix[2][1];// * rawBlurredGrid3; // Interaction with field 3-2
                         }
                     }
                 }
@@ -1357,18 +1450,46 @@
             }
 
             discretize() {
-                // Apply the discretization in the smooth field
-                if ((!this.controls.lockField1) && (this.npixels1 > 0)) {
-                    Helper.discretizeSingleField(this.blurredGrid1, this.npixels1, this.borderPixels1, this.boundaryGrid1, this.controls.usePBC, this.borderIndices);
-                    this.grid1.set(this.blurredGrid1); // Copy back from smoothing to discretized field
-                }
-                if ((!this.controls.lockField2) && (this.npixels2 > 0)) {
-                    Helper.discretizeSingleField(this.blurredGrid2, this.npixels2, this.borderPixels2, this.boundaryGrid2, this.controls.usePBC, this.borderIndices);
-                    this.grid2.set(this.blurredGrid2); // Copy back from smoothing to discretized field
-                }
-                if ((!this.controls.lockField3) && (this.npixels3 > 0)) {
-                    Helper.discretizeSingleField(this.blurredGrid3, this.npixels3, this.borderPixels3, this.boundaryGrid3, this.controls.usePBC, this.borderIndices);
-                    this.grid3.set(this.blurredGrid3); // Copy back from smoothing to discretized field
+                // Count how many fields are active
+                let activeFieldCount = 0;
+                if ((!this.controls.lockField1) && (this.npixels1 > 0)) activeFieldCount++;
+                if ((!this.controls.lockField2) && (this.npixels2 > 0)) activeFieldCount++;
+                if ((!this.controls.lockField3) && (this.npixels3 > 0)) activeFieldCount++;
+                
+                if (activeFieldCount > 1) {
+                    // Use combined discretization for multiple fields
+                    Helper.discretizeCombinedFields(
+                        (!this.controls.lockField1) && (this.npixels1 > 0) ? this.blurredGrid1 : null, this.npixels1, this.borderPixels1, this.boundaryGrid1,
+                        (!this.controls.lockField2) && (this.npixels2 > 0) ? this.blurredGrid2 : null, this.npixels2, this.borderPixels2, this.boundaryGrid2,
+                        (!this.controls.lockField3) && (this.npixels3 > 0) ? this.blurredGrid3 : null, this.npixels3, this.borderPixels3, this.boundaryGrid3,
+                        this.controls.usePBC, 
+                        this.borderIndices
+                    );
+                    
+                    // Copy back to original grids
+                    if ((!this.controls.lockField1) && (this.npixels1 > 0)) {
+                        this.grid1.set(this.blurredGrid1);
+                    }
+                    if ((!this.controls.lockField2) && (this.npixels2 > 0)) {
+                        this.grid2.set(this.blurredGrid2);
+                    }
+                    if ((!this.controls.lockField3) && (this.npixels3 > 0)) {
+                        this.grid3.set(this.blurredGrid3);
+                    }
+                } else {
+                    // Fall back to single field discretization for efficiency when only one field is active
+                    if ((!this.controls.lockField1) && (this.npixels1 > 0)) {
+                        Helper.discretizeSingleField(this.blurredGrid1, this.npixels1, this.borderPixels1, this.boundaryGrid1, this.controls.usePBC, this.borderIndices);
+                        this.grid1.set(this.blurredGrid1);
+                    }
+                    if ((!this.controls.lockField2) && (this.npixels2 > 0)) {
+                        Helper.discretizeSingleField(this.blurredGrid2, this.npixels2, this.borderPixels2, this.boundaryGrid2, this.controls.usePBC, this.borderIndices);
+                        this.grid2.set(this.blurredGrid2);
+                    }
+                    if ((!this.controls.lockField3) && (this.npixels3 > 0)) {
+                        Helper.discretizeSingleField(this.blurredGrid3, this.npixels3, this.borderPixels3, this.boundaryGrid3, this.controls.usePBC, this.borderIndices);
+                        this.grid3.set(this.blurredGrid3);
+                    }
                 }
             }
 
