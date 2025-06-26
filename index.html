@@ -495,6 +495,215 @@
                 }
             }
 
+            static discretizeCombinedFieldsOptimized(
+                grid1, npixels1, borderPixels1, boundaryGrid1,
+                grid2, npixels2, borderPixels2, boundaryGrid2,
+                grid3, npixels3, borderPixels3, boundaryGrid3,
+                usePBC, borderIndices
+            ) {
+                // Build arrays of active fields and their parameters
+                const grids = [];
+                const targetCounts = [];
+                const borderPixelsSets = [];
+                const boundaryGrids = [];
+                
+                if (grid1 && npixels1 > 0) {
+                    grids.push(grid1);
+                    targetCounts.push(npixels1);
+                    borderPixelsSets.push(borderPixels1);
+                    boundaryGrids.push(boundaryGrid1);
+                }
+                if (grid2 && npixels2 > 0) {
+                    grids.push(grid2);
+                    targetCounts.push(npixels2);
+                    borderPixelsSets.push(borderPixels2);
+                    boundaryGrids.push(boundaryGrid2);
+                }
+                if (grid3 && npixels3 > 0) {
+                    grids.push(grid3);
+                    targetCounts.push(npixels3);
+                    borderPixelsSets.push(borderPixels3);
+                    boundaryGrids.push(boundaryGrid3);
+                }
+                
+                if (grids.length === 0) return;
+                
+                const numFields = grids.length;
+                const gridSize = grids[0].length;
+                
+                // Restore boundary pixels if not using PBC
+                if (!usePBC) {
+                    for (let fieldIdx = 0; fieldIdx < numFields; fieldIdx++) {
+                        for (const index of borderIndices) {
+                            grids[fieldIdx][index] = boundaryGrids[fieldIdx][index];
+                        }
+                    }
+                }
+                
+                // Calculate quotas for non-boundary pixels
+                const quotas = targetCounts.map((targetCount, fieldIdx) => 
+                    targetCount - Array.from(borderPixelsSets[fieldIdx]).reduce((sum, index) => 
+                        sum + grids[fieldIdx][index], 0)
+                );
+                
+                // Create priority rankings for each pixel (who's 1st, 2nd, 3rd for each pixel)
+                const pixelRankings = [];
+                
+                for (let pixelIdx = 0; pixelIdx < gridSize; pixelIdx++) {
+                    // Skip if any field considers this a border pixel
+                    if (borderPixelsSets.some(borderSet => borderSet.has(pixelIdx))) {
+                        continue;
+                    }
+                    
+                    // Create array of [fieldIdx, value] pairs for this pixel
+                    const fieldValues = [];
+                    for (let fieldIdx = 0; fieldIdx < numFields; fieldIdx++) {
+                        fieldValues.push([fieldIdx, grids[fieldIdx][pixelIdx]]);
+                    }
+                    
+                    // Sort by value (descending) to get ranking
+                    fieldValues.sort((a, b) => b[1] - a[1]);
+                    
+                    pixelRankings[pixelIdx] = fieldValues;
+                }
+                
+                // Reset all non-boundary pixels
+                for (let fieldIdx = 0; fieldIdx < numFields; fieldIdx++) {
+                    for (let pixelIdx = 0; pixelIdx < gridSize; pixelIdx++) {
+                        if (!borderPixelsSets[fieldIdx].has(pixelIdx)) {
+                            grids[fieldIdx][pixelIdx] = 0;
+                        }
+                    }
+                }
+                
+                const assigned = new Array(numFields).fill(0);
+                const assignedPixels = new Set();
+                
+                // Hierarchical assignment: 1st priority, then 2nd priority, then 3rd priority
+                for (let priorityLevel = 0; priorityLevel < numFields; priorityLevel++) {
+                    console.log(`--- Priority Level ${priorityLevel + 1} ---`);
+                    
+                    let assignedThisLevel = 0;
+                    
+                    // Create priority buckets for this level
+                    const priorityBuckets = new Array(numFields);
+                    for (let i = 0; i < numFields; i++) {
+                        priorityBuckets[i] = [];
+                    }
+                    
+                    // Fill buckets with pixels where each field has this priority level
+                    for (let pixelIdx = 0; pixelIdx < gridSize; pixelIdx++) {
+                        if (!pixelRankings[pixelIdx] || assignedPixels.has(pixelIdx)) continue;
+                        
+                        const rankings = pixelRankings[pixelIdx];
+                        if (priorityLevel < rankings.length) {
+                            const [fieldIdx, value] = rankings[priorityLevel];
+                            priorityBuckets[fieldIdx].push({
+                                pixelIdx: pixelIdx,
+                                value: value,
+                                fieldIdx: fieldIdx
+                            });
+                        }
+                    }
+                    
+                    // Assign pixels for each field at this priority level
+                    for (let fieldIdx = 0; fieldIdx < numFields; fieldIdx++) {
+                        const bucket = priorityBuckets[fieldIdx];
+                        const remainingQuota = quotas[fieldIdx] - assigned[fieldIdx];
+                        
+                        if (remainingQuota <= 0 || bucket.length === 0) continue;
+                        
+                        const numToSelect = Math.min(remainingQuota, bucket.length);
+                        
+                        // Optimization: if we need all pixels in bucket, no quickselect needed
+                        if (numToSelect >= bucket.length) {
+                            console.log(`Field ${fieldIdx}: Taking all ${bucket.length} pixels at priority ${priorityLevel + 1}`);
+                            for (const candidate of bucket) {
+                                grids[fieldIdx][candidate.pixelIdx] = 1;
+                                assignedPixels.add(candidate.pixelIdx);
+                                assigned[fieldIdx]++;
+                                assignedThisLevel++;
+                            }
+                        } else {
+                            console.log(`Field ${fieldIdx}: Quickselecting ${numToSelect}/${bucket.length} pixels at priority ${priorityLevel + 1}`);
+                            
+                            // Use quickselect to find the top candidates
+                            const candidateIndices = bucket.map((_, i) => i);
+                            this.quickSelectBucket(candidateIndices, 0, candidateIndices.length - 1, numToSelect, bucket);
+                            
+                            // Assign the top candidates (collision-free due to exclusive priority bucketing)
+                            for (let i = 0; i < numToSelect; i++) {
+                                const candidate = bucket[candidateIndices[i]];
+                                grids[fieldIdx][candidate.pixelIdx] = 1;
+                                assignedPixels.add(candidate.pixelIdx);
+                                assigned[fieldIdx]++;
+                                assignedThisLevel++;
+                            }
+                        }
+                    }
+                    
+                    console.log(`Assigned ${assignedThisLevel} pixels at priority level ${priorityLevel + 1}`);
+                    
+                    // Check if all quotas are satisfied
+                    const allQuotasMet = assigned.every((count, idx) => count >= quotas[idx]);
+                    if (allQuotasMet) {
+                        console.log(`All quotas satisfied after priority level ${priorityLevel + 1}`);
+                        break;
+                    }
+                }
+                
+                // Final validation and warning
+                for (let fieldIdx = 0; fieldIdx < numFields; fieldIdx++) {
+                    if (assigned[fieldIdx] < quotas[fieldIdx]) {
+                        console.warn(`Field ${fieldIdx} could not meet quota: assigned ${assigned[fieldIdx]}, needed ${quotas[fieldIdx]}`);
+                    } else {
+                        console.log(`Field ${fieldIdx}: Successfully assigned ${assigned[fieldIdx]}/${quotas[fieldIdx]} pixels`);
+                    }
+                }
+            }
+
+            // QuickSelect specialized for bucket candidates
+            static quickSelectBucket(indices, left, right, k, bucket) {
+                if (left === right) return;
+                
+                // Median-of-three pivot selection
+                const mid = Math.floor((left + right) / 2);
+                if (bucket[indices[right]].value > bucket[indices[mid]].value) {
+                    [indices[right], indices[mid]] = [indices[mid], indices[right]];
+                }
+                if (bucket[indices[mid]].value > bucket[indices[left]].value) {
+                    [indices[left], indices[mid]] = [indices[mid], indices[left]];
+                }
+                if (bucket[indices[right]].value > bucket[indices[left]].value) {
+                    [indices[right], indices[left]] = [indices[left], indices[right]];
+                }
+                
+                const pivotIndex = this.partitionBucket(indices, left, right, bucket);
+                
+                if (pivotIndex === k - 1) {
+                    return;
+                } else if (k - 1 < pivotIndex) {
+                    this.quickSelectBucket(indices, left, pivotIndex - 1, k, bucket);
+                } else {
+                    this.quickSelectBucket(indices, pivotIndex + 1, right, k, bucket);
+                }
+            }
+
+            static partitionBucket(indices, left, right, bucket) {
+                const pivotValue = bucket[indices[left]].value;
+                let i = left + 1;
+                
+                for (let j = left + 1; j <= right; j++) {
+                    if (bucket[indices[j]].value > pivotValue) {
+                        [indices[i], indices[j]] = [indices[j], indices[i]];
+                        i++;
+                    }
+                }
+                
+                [indices[left], indices[i - 1]] = [indices[i - 1], indices[left]];
+                return i - 1;
+            }
+
             static rollDiceSingleField(grid, borderPixels, temperature) {
                 const size = grid.length;
                 
@@ -509,7 +718,14 @@
                 for (let i = 0; i < size; i++) {
                     if (!borderPixels.has(i)) {
                         // Converting the noise into Gumbel noise
-                        grid[i] += -temperature * Math.log(-Math.log(randoms[i]));
+
+                        // TODO For NVE ensemble we need to take into account that the average added energy is defined as
+                        // NT * y ; where y ~= 0.5722 (this is the total kinetic energy). Since we can calculate the potential
+                        // energy just before applying the kinetic energy by checking the total added sums of the blurred fields,
+                        // after cross interactions have been applied. Then we can say that for NVE potential-kinetic=constant.
+                        // It turns out like this because we have set our potential energy to be positive. Also, I think this
+                        // -temperature should be just temperature, as this value should be postive when added.
+                        grid[i] += temperature * Math.log(-Math.log(randoms[i]));
                     }
                 }
             }
@@ -1332,6 +1548,11 @@
                 const t1 = performance.now();
                 this.performance.addMetric('borders', t1 - t0);
 
+                const t8 = performance.now();
+                this.render();
+                const t9 = performance.now();
+                this.performance.addMetric('render', t9 - t8);
+
                 const t2 = performance.now();
                 this.applyGaussianBlur();
                 const t3 = performance.now();
@@ -1351,11 +1572,6 @@
                 this.discretize();
                 const t7 = performance.now();
                 this.performance.addMetric('discretize', t7 - t6);
-
-                const t8 = performance.now();
-                this.render();
-                const t9 = performance.now();
-                this.performance.addMetric('render', t9 - t8);
 
                 if (this.currentStep % 100 === 0) {
                     this.performance.logPerformance();
@@ -1458,7 +1674,7 @@
                 
                 if (activeFieldCount > 1) {
                     // Use combined discretization for multiple fields
-                    Helper.discretizeCombinedFields(
+                    Helper.discretizeCombinedFieldsOptimized(
                         (!this.controls.lockField1) && (this.npixels1 > 0) ? this.blurredGrid1 : null, this.npixels1, this.borderPixels1, this.boundaryGrid1,
                         (!this.controls.lockField2) && (this.npixels2 > 0) ? this.blurredGrid2 : null, this.npixels2, this.borderPixels2, this.boundaryGrid2,
                         (!this.controls.lockField3) && (this.npixels3 > 0) ? this.blurredGrid3 : null, this.npixels3, this.borderPixels3, this.boundaryGrid3,
