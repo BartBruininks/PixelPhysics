@@ -19,11 +19,11 @@ By locking the red field and making sure the blue field is in the liquid domain,
 - Sharing settings should be a breeze as you can simply share the `url`, the field positions are not saved in the url
 
 # Underlying algorithm
-1) Each field ($F_i$) is a boolean grid with $N_i$ non-empty values
+1) Each field ($F_i$) is a boolean grid with $N_i$ non-empty values and only grid 0 is dynamic
 3) Each field is blurred using a gaussian kernal with a cutoff in $K$ successive iterations
 4) The self interactions scale the blurred gaussian values
-5) The cross interactions ($CI$) are calculated per pixel as $Fa_i += (0.5 - Fb_i) * CI_{ab} * 2$ if $0.1 < Fb_j < 1.0$ (interface like interaction)
-6) For each pixel in each field a random value is added and multiplied with the temperature
+5) The cross interactions ($CI$) are calculated per pixel as $F_{ai} += F_{bi} * CI_{ab}
+6) For each pixel in each field a random value ($F_{ai} += temp * log(log(random((0,1)))$) is added which is temperature dependent
 7) Each field ($F_i$) is discretized by quickselect partitioning the field and picking the $N_i$ highest values (O(N) on average)
 
 # Thus far observed phenomena
